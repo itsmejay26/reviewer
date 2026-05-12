@@ -1,715 +1,841 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>⚔️ Contemporary World — Study Quest</title>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contemporary World — Interactive Study App</title>
 <style>
   :root {
-    --bg:        #0a0a0f;
-    --panel:     #11111c;
-    --border:    #2a2a4a;
-    --accent:    #7c3aed;
-    --accent2:   #06b6d4;
-    --gold:      #f59e0b;
-    --hp-color:  #ef4444;
-    --exp-color: #22c55e;
-    --text:      #e2e8f0;
-    --muted:     #64748b;
-    --glow:      0 0 12px rgba(124,58,237,.6);
-    --glow2:     0 0 12px rgba(6,182,212,.5);
+    --bg: #080c10;
+    --surface: #0d1117;
+    --card: #111820;
+    --card2: #16202a;
+    --border: #1e2d3d;
+    --border2: #2a3f55;
+    --accent: #38b2f0;
+    --accent-light: #7ed4fa;
+    --accent-dim: #1a5c80;
+    --accent2: #2dd4b0;
+    --text: #d6eaf8;
+    --text-muted: #6e90ab;
+    --text-dim: #3a5570;
+    --red: #e05a3a;
+    --red-bg: #1e0f08;
+    --green: #2db88a;
+    --green-bg: #0a1e16;
+    --radius: 8px;
+    --shadow: 0 4px 30px rgba(0,0,0,0.7);
   }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI','Helvetica Neue',Arial,sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before { content:''; position:fixed; inset:0; background-image: linear-gradient(rgba(56,178,240,0.025) 1px,transparent 1px), linear-gradient(90deg,rgba(56,178,240,0.025) 1px,transparent 1px); background-size:44px 44px; pointer-events:none; z-index:0; }
+  body::after { content:''; position:fixed; top:-200px; left:50%; transform:translateX(-50%); width:800px; height:500px; background:radial-gradient(ellipse,rgba(56,178,240,0.05) 0%,transparent 70%); pointer-events:none; z-index:0; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  nav { position:sticky; top:0; z-index:100; background:rgba(13,17,23,0.96); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); padding:0 20px; display:flex; align-items:center; gap:10px; height:62px; box-shadow:0 2px 24px rgba(0,0,0,0.8); }
+  .nav-logo { display:flex; flex-direction:column; margin-right:auto; }
+  .nav-logo .main { font-size:1rem; font-weight:800; color:var(--accent); letter-spacing:0.04em; text-shadow:0 0 20px rgba(56,178,240,0.4); }
+  .nav-logo .sub { font-size:0.7rem; color:var(--text-muted); letter-spacing:0.08em; margin-top:1px; }
+  .nav-btn { background:none; border:1px solid var(--border2); color:var(--text-muted); padding:8px 15px; border-radius:var(--radius); cursor:pointer; font-size:0.82rem; letter-spacing:0.02em; transition:all 0.2s; white-space:nowrap; }
+  .nav-btn:hover { border-color:var(--accent-dim); color:var(--text); }
+  .nav-btn.active { background:var(--accent); color:#080c10; border-color:var(--accent); font-weight:700; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'VT323', monospace;
-    font-size: 18px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 12px 40px;
-    background-image:
-      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,58,237,.12) 0%, transparent 70%),
-      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(42,42,74,.18) 40px),
-      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(42,42,74,.18) 40px);
-  }
+  .mode { display:none; padding:30px 20px 80px; max-width:940px; margin:0 auto; position:relative; z-index:1; }
+  .mode.active { display:block; }
 
-  /* ── TITLE ── */
-  header {
-    text-align: center;
-    margin-bottom: 18px;
-    animation: fadeDown .6s ease both;
-  }
-  header h1 {
-    font-family: 'Press Start 2P', monospace;
-    font-size: clamp(10px, 3vw, 16px);
-    color: var(--gold);
-    text-shadow: 0 0 20px rgba(245,158,11,.7), 0 0 40px rgba(245,158,11,.3);
-    letter-spacing: 2px;
-    line-height: 1.6;
-  }
-  header p {
-    color: var(--muted);
-    font-size: 14px;
-    margin-top: 4px;
-    letter-spacing: 1px;
-  }
+  /* REVIEWER */
+  .rev-header { text-align:center; margin-bottom:30px; }
+  .rev-header h1 { font-size:1.9rem; font-weight:800; color:var(--accent-light); margin-bottom:6px; text-shadow:0 0 30px rgba(126,212,250,0.2); }
+  .rev-header p { color:var(--text-muted); font-size:0.88rem; }
+  .search-wrap { position:relative; margin-bottom:6px; }
+  .search-wrap input { width:100%; background:var(--card); border:1px solid var(--border2); color:var(--text); padding:12px 16px 12px 46px; border-radius:var(--radius); font-size:0.92rem; outline:none; transition:border-color 0.2s; }
+  .search-wrap input:focus { border-color:var(--accent-dim); }
+  .search-wrap input::placeholder { color:var(--text-dim); }
+  .search-icon { position:absolute; left:15px; top:50%; transform:translateY(-50%); color:var(--text-dim); }
+  #search-count { font-size:0.78rem; color:var(--text-muted); margin:6px 0 18px 4px; }
 
-  /* ── MAIN LAYOUT ── */
-  .game-wrapper {
-    width: 100%;
-    max-width: 760px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
+  .topic-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:10px; overflow:hidden; transition:border-color 0.2s; }
+  .topic-card:hover { border-color:var(--border2); }
+  .topic-header { padding:15px 18px; cursor:pointer; display:flex; align-items:center; gap:12px; user-select:none; transition:background 0.15s; }
+  .topic-header:hover { background:var(--card2); }
+  .topic-num { width:32px; height:32px; background:var(--accent-dim); color:var(--accent-light); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+  .topic-title-text { font-weight:700; font-size:0.97rem; color:var(--text); flex:1; }
+  .topic-chevron { color:var(--text-dim); font-size:0.8rem; transition:transform 0.25s; }
+  .topic-card.open .topic-chevron { transform:rotate(180deg); }
+  .topic-body { display:none; padding:0 18px 20px; border-top:1px solid var(--border); }
+  .topic-card.open .topic-body { display:block; }
 
-  /* ── STAT BAR ── */
-  .stat-bar {
-    background: var(--panel);
-    border: 2px solid var(--border);
-    border-radius: 6px;
-    padding: 12px 18px;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    flex-wrap: wrap;
-    animation: fadeDown .7s .1s ease both;
-  }
-  .stat-item { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 100px; }
-  .stat-label {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 7px;
-    color: var(--muted);
-    letter-spacing: 1px;
-  }
-  .bar-track {
-    height: 14px;
-    background: rgba(255,255,255,.05);
-    border-radius: 3px;
-    border: 1px solid var(--border);
-    overflow: hidden;
-    position: relative;
-  }
-  .bar-fill {
-    height: 100%;
-    border-radius: 3px;
-    transition: width .4s ease;
-    position: relative;
-  }
-  .bar-fill::after {
-    content: '';
-    position: absolute;
-    inset: 2px 4px auto auto;
-    width: 3px; height: calc(100% - 4px);
-    background: rgba(255,255,255,.35);
-    border-radius: 2px;
-  }
-  .hp-fill  { background: linear-gradient(90deg, #b91c1c, var(--hp-color)); box-shadow: 0 0 8px rgba(239,68,68,.5); }
-  .exp-fill { background: linear-gradient(90deg, #15803d, var(--exp-color)); box-shadow: 0 0 8px rgba(34,197,94,.5); }
-  .stat-value {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 9px;
-    color: var(--text);
-    margin-top: 2px;
-  }
+  .topic-body h3 { font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--accent); margin:18px 0 8px; font-weight:700; }
+  .topic-body p { font-size:0.9rem; color:var(--text); line-height:1.75; margin-bottom:6px; }
+  .topic-body ul { padding-left:18px; margin:6px 0; }
+  .topic-body li { font-size:0.88rem; color:var(--text); line-height:1.7; margin-bottom:4px; }
+  .hl-term { color:var(--accent-light); font-weight:700; }
+  .hl-example { color:#a0d8b0; font-style:italic; font-size:0.86em; }
 
-  .level-badge {
-    display: flex; flex-direction: column; align-items: center; gap: 2px;
-    min-width: 70px;
-  }
-  .level-num {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 22px;
-    color: var(--gold);
-    text-shadow: 0 0 14px rgba(245,158,11,.7);
-    line-height: 1;
-  }
+  .criteria-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin:10px 0; }
+  .criteria-item { background:var(--card2); border:1px solid var(--border); border-radius:6px; padding:10px 12px; }
+  .criteria-item .c-num { font-size:0.65rem; color:var(--accent); font-weight:800; letter-spacing:0.08em; margin-bottom:2px; }
+  .criteria-item .c-title { font-size:0.83rem; color:var(--accent-light); font-weight:700; margin-bottom:4px; }
+  .criteria-item .c-desc { font-size:0.77rem; color:var(--text-muted); line-height:1.5; }
 
-  /* ── CHAT WINDOW ── */
-  .chat-window {
-    background: var(--panel);
-    border: 2px solid var(--border);
-    border-radius: 6px;
-    min-height: 340px;
-    max-height: 420px;
-    overflow-y: auto;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    scroll-behavior: smooth;
-    animation: fadeIn .8s .2s ease both;
-  }
-  .chat-window::-webkit-scrollbar { width: 6px; }
-  .chat-window::-webkit-scrollbar-track { background: transparent; }
-  .chat-window::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .sdg-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:8px; margin:10px 0; }
+  .sdg-item { background:var(--card2); border:1px solid var(--border); border-radius:6px; padding:9px 12px; display:flex; gap:10px; align-items:flex-start; }
+  .sdg-num { width:24px; height:24px; background:var(--accent-dim); color:var(--accent-light); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:800; flex-shrink:0; margin-top:2px; }
+  .sdg-text .sdg-name { font-size:0.82rem; font-weight:700; color:var(--text); }
+  .sdg-text .sdg-desc { font-size:0.75rem; color:var(--text-muted); }
 
-  .msg {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    animation: slideUp .3s ease both;
-  }
-  .msg-label {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 7px;
-    letter-spacing: 1px;
-  }
-  .msg-gm  .msg-label { color: var(--accent2); }
-  .msg-you .msg-label { color: var(--gold); }
-  .msg-sys .msg-label { color: var(--accent); }
+  .factor-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:8px 0; }
+  .factor-box { background:var(--card2); border:1px solid var(--border); border-radius:6px; padding:10px 12px; }
+  .factor-box .f-label { font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:5px; }
+  .factor-box .f-label.push { color:#e07060; }
+  .factor-box .f-label.pull { color:#60d0a0; }
+  .factor-box .f-items { font-size:0.8rem; color:var(--text-muted); line-height:1.6; }
+  .factor-section-label { font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; margin:14px 0 6px; }
+  .factor-section-label.push { color:#e07060; }
+  .factor-section-label.pull { color:#60d0a0; }
 
-  .msg-bubble {
-    padding: 10px 14px;
-    border-radius: 4px;
-    line-height: 1.5;
-    font-size: 18px;
-    max-width: 95%;
-  }
-  .msg-gm  .msg-bubble { background: rgba(6,182,212,.08);  border-left: 3px solid var(--accent2); color: var(--text); }
-  .msg-you .msg-bubble { background: rgba(245,158,11,.08); border-left: 3px solid var(--gold);    color: var(--text); align-self: flex-end; }
-  .msg-sys .msg-bubble { background: rgba(124,58,237,.10); border-left: 3px solid var(--accent);  color: var(--text); font-style: italic; }
+  .perspective-card { background:var(--card2); border:1px solid var(--border); border-radius:6px; padding:14px 16px; margin:8px 0; }
+  .perspective-card .p-title { font-size:0.88rem; font-weight:800; color:var(--accent-light); margin-bottom:6px; }
+  .perspective-card .p-body { font-size:0.84rem; color:var(--text); line-height:1.65; }
+  .perspective-card .p-example { font-size:0.8rem; color:var(--accent2); font-style:italic; margin-top:6px; }
 
-  .msg-correct .msg-bubble { border-left-color: var(--exp-color); background: rgba(34,197,94,.08); }
-  .msg-wrong   .msg-bubble { border-left-color: var(--hp-color);  background: rgba(239,68,68,.08); }
+  .hidden-by-search { display:none !important; }
 
-  /* ── INPUT ROW ── */
-  .input-row {
-    display: flex;
-    gap: 10px;
-    animation: fadeIn .9s .3s ease both;
-  }
-  #userInput {
-    flex: 1;
-    background: var(--panel);
-    border: 2px solid var(--border);
-    border-radius: 4px;
-    color: var(--text);
-    font-family: 'VT323', monospace;
-    font-size: 20px;
-    padding: 10px 14px;
-    outline: none;
-    transition: border-color .2s, box-shadow .2s;
-  }
-  #userInput:focus {
-    border-color: var(--accent2);
-    box-shadow: var(--glow2);
-  }
-  #userInput::placeholder { color: var(--muted); }
+  /* QUIZ */
+  .quiz-start { text-align:center; padding:50px 20px; }
+  .quiz-start h2 { font-size:2rem; font-weight:800; color:var(--accent-light); margin-bottom:10px; }
+  .quiz-start p { color:var(--text-muted); margin-bottom:28px; font-size:0.9rem; }
+  .quiz-settings { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:28px; }
+  .quiz-type-btn { background:var(--card); border:1px solid var(--border2); color:var(--text-muted); padding:10px 18px; border-radius:var(--radius); cursor:pointer; font-size:0.84rem; transition:all 0.2s; }
+  .quiz-type-btn.selected { background:var(--accent-dim); color:var(--accent-light); border-color:var(--accent); }
+  .btn-primary { background:var(--accent); color:#080c10; border:none; padding:13px 38px; border-radius:var(--radius); font-weight:800; font-size:0.95rem; cursor:pointer; letter-spacing:0.04em; transition:all 0.2s; box-shadow:0 4px 20px rgba(56,178,240,0.3); }
+  .btn-primary:hover { background:var(--accent-light); transform:translateY(-1px); }
 
-  #sendBtn {
-    background: var(--accent);
-    border: none;
-    border-radius: 4px;
-    color: #fff;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 9px;
-    padding: 0 18px;
-    cursor: pointer;
-    transition: background .2s, box-shadow .2s, transform .1s;
-    box-shadow: var(--glow);
-    letter-spacing: 1px;
-  }
-  #sendBtn:hover  { background: #6d28d9; box-shadow: 0 0 18px rgba(124,58,237,.8); }
-  #sendBtn:active { transform: scale(.96); }
-  #sendBtn:disabled { background: var(--border); box-shadow: none; cursor: not-allowed; }
+  .quiz-progress-bar { background:var(--border); border-radius:4px; height:3px; margin-bottom:22px; overflow:hidden; }
+  .quiz-progress-fill { background:var(--accent); height:100%; border-radius:4px; transition:width 0.4s ease; }
+  .quiz-meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; font-size:0.82rem; color:var(--text-muted); }
+  .score-badge { background:var(--card2); border:1px solid var(--border2); padding:4px 14px; border-radius:20px; color:var(--accent); font-family:'Courier New',monospace; }
 
-  /* ── START SCREEN ── */
-  #startScreen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 18px;
-    padding: 40px 20px;
-    text-align: center;
-    animation: fadeIn .8s ease both;
-  }
-  #startScreen p {
-    color: var(--muted);
-    font-size: 16px;
-    line-height: 1.7;
-    max-width: 500px;
-  }
-  #startBtn {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 12px;
-    padding: 16px 36px;
-    background: transparent;
-    border: 2px solid var(--gold);
-    color: var(--gold);
-    border-radius: 4px;
-    cursor: pointer;
-    letter-spacing: 2px;
-    transition: background .2s, box-shadow .2s, transform .1s;
-    text-shadow: 0 0 10px rgba(245,158,11,.5);
-    box-shadow: 0 0 14px rgba(245,158,11,.3);
-    animation: pulse 2s ease infinite;
-  }
-  #startBtn:hover { background: rgba(245,158,11,.08); box-shadow: 0 0 24px rgba(245,158,11,.6); }
-  #startBtn:active { transform: scale(.96); }
+  .question-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:26px; margin-bottom:18px; animation:slideIn 0.3s ease; }
+  @keyframes slideIn { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
+  .q-type-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--accent-dim); margin-bottom:10px; font-weight:700; }
+  .q-text { font-size:1.05rem; color:var(--text); line-height:1.6; margin-bottom:22px; font-weight:500; }
 
-  /* ── LOADING DOTS ── */
-  .typing {
-    display: inline-flex; gap: 5px; align-items: center; padding: 8px 14px;
-    background: rgba(6,182,212,.08); border-left: 3px solid var(--accent2); border-radius: 4px;
-  }
-  .typing span {
-    width: 7px; height: 7px; border-radius: 50%; background: var(--accent2);
-    animation: bounce 1s ease infinite;
-  }
-  .typing span:nth-child(2) { animation-delay: .15s; }
-  .typing span:nth-child(3) { animation-delay: .3s; }
+  .options-grid { display:flex; flex-direction:column; gap:9px; }
+  .option-btn { background:var(--card2); border:1px solid var(--border2); color:var(--text); padding:12px 16px; border-radius:var(--radius); cursor:pointer; font-size:0.88rem; text-align:left; transition:all 0.15s; display:flex; align-items:center; gap:12px; }
+  .option-btn:hover:not(:disabled) { border-color:var(--accent-dim); background:#1a2a38; }
+  .opt-letter { width:24px; height:24px; border:1px solid var(--border2); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:0.72rem; color:var(--text-dim); flex-shrink:0; font-family:'Courier New',monospace; font-weight:700; }
+  .option-btn.correct { background:var(--green-bg); border-color:var(--green); color:#7deebc; }
+  .option-btn.wrong { background:var(--red-bg); border-color:var(--red); color:#f09080; }
+  .option-btn.correct .opt-letter { border-color:var(--green); color:var(--green); }
+  .option-btn.wrong .opt-letter { border-color:var(--red); color:var(--red); }
+  .option-btn:disabled { cursor:default; }
 
-  /* ── GAME OVER / LEVEL UP ── */
-  .overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.85);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 100;
-    animation: fadeIn .3s ease both;
-  }
-  .overlay-box {
-    background: var(--panel);
-    border: 3px solid var(--accent);
-    border-radius: 8px;
-    padding: 40px 50px;
-    text-align: center;
-    animation: zoomIn .4s ease both;
-  }
-  .overlay-box.level-up { border-color: var(--gold); }
-  .overlay-title {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 20px;
-    margin-bottom: 16px;
-  }
-  .overlay-box        .overlay-title { color: var(--hp-color); text-shadow: 0 0 16px rgba(239,68,68,.7); }
-  .overlay-box.level-up .overlay-title { color: var(--gold);    text-shadow: 0 0 16px rgba(245,158,11,.7); }
-  .overlay-sub { color: var(--muted); margin-bottom: 24px; font-size: 16px; }
-  .overlay-btn {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 10px;
-    padding: 12px 28px;
-    border: 2px solid currentColor;
-    border-radius: 4px;
-    background: transparent;
-    cursor: pointer;
-    transition: background .2s;
-    letter-spacing: 1px;
-  }
-  .overlay-box        .overlay-btn { color: var(--hp-color); }
-  .overlay-box.level-up .overlay-btn { color: var(--gold); }
-  .overlay-btn:hover { background: rgba(255,255,255,.06); }
+  .tf-grid { display:flex; gap:14px; }
+  .tf-btn { flex:1; padding:15px; background:var(--card2); border:1px solid var(--border2); border-radius:var(--radius); color:var(--text); font-size:1rem; cursor:pointer; transition:all 0.15s; font-weight:600; }
+  .tf-btn:hover:not(:disabled) { border-color:var(--accent-dim); background:#1a2a38; }
+  .tf-btn.correct { background:var(--green-bg); border-color:var(--green); color:#7deebc; }
+  .tf-btn.wrong { background:var(--red-bg); border-color:var(--red); color:#f09080; }
+  .tf-btn:disabled { cursor:default; }
 
-  /* ── ANIMATIONS ── */
-  @keyframes fadeDown  { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:none; } }
-  @keyframes fadeIn    { from { opacity:0; } to { opacity:1; } }
-  @keyframes slideUp   { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
-  @keyframes zoomIn    { from { opacity:0; transform:scale(.85); } to { opacity:1; transform:scale(1); } }
-  @keyframes bounce    { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
-  @keyframes pulse     { 0%,100% { box-shadow:0 0 14px rgba(245,158,11,.3); } 50% { box-shadow:0 0 28px rgba(245,158,11,.7); } }
-  @keyframes hpFlash   { 0%,100% { background: var(--panel); } 50% { background: rgba(239,68,68,.2); } }
-  @keyframes expGlow   { 0%,100% { background: var(--panel); } 50% { background: rgba(34,197,94,.15); } }
+  .fib-wrap { display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap; }
+  .fib-input { flex:1; min-width:180px; background:var(--card2); border:1px solid var(--border2); color:var(--text); padding:12px 14px; border-radius:var(--radius); font-size:0.92rem; outline:none; transition:border-color 0.2s; }
+  .fib-input:focus { border-color:var(--accent-dim); }
+  .fib-input.correct { border-color:var(--green); background:var(--green-bg); color:#7deebc; }
+  .fib-input.wrong { border-color:var(--red); background:var(--red-bg); color:#f09080; }
+  .fib-hint { font-size:0.78rem; color:var(--text-dim); margin-top:8px; }
+
+  .match-container { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .match-col { display:flex; flex-direction:column; gap:8px; }
+  .match-col-label { font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); margin-bottom:4px; font-weight:700; }
+  .match-item { background:var(--card2); border:1px solid var(--border2); padding:10px 13px; border-radius:var(--radius); font-size:0.82rem; cursor:pointer; transition:all 0.15s; min-height:44px; display:flex; align-items:center; line-height:1.4; }
+  .match-item:hover:not(.disabled) { border-color:var(--accent-dim); }
+  .match-item.selected { border-color:var(--accent); background:rgba(56,178,240,0.1); }
+  .match-item.matched-correct { border-color:var(--green); background:var(--green-bg); color:#7deebc; cursor:default; }
+  .match-item.matched-wrong { border-color:var(--red); background:var(--red-bg); color:#f09080; cursor:default; }
+
+  .feedback-box { margin-top:14px; padding:13px 16px; border-radius:var(--radius); font-size:0.87rem; line-height:1.6; animation:fadeIn 0.2s ease; }
+  @keyframes fadeIn { from{opacity:0;}to{opacity:1;} }
+  .feedback-box.correct { background:var(--green-bg); border:1px solid var(--green); color:#7deebc; }
+  .feedback-box.wrong { background:var(--red-bg); border:1px solid var(--red); color:#f09080; }
+  .feedback-box strong { display:block; margin-bottom:4px; font-size:0.93rem; }
+
+  .quiz-nav { display:flex; justify-content:flex-end; margin-top:14px; }
+  .btn-next { background:var(--accent); color:#080c10; border:none; padding:11px 26px; border-radius:var(--radius); font-weight:800; font-size:0.88rem; cursor:pointer; transition:all 0.2s; }
+  .btn-next:hover { background:var(--accent-light); }
+
+  .results-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:40px; text-align:center; }
+  .results-card h2 { font-size:1.8rem; font-weight:800; color:var(--accent-light); margin-bottom:8px; }
+  .results-card p { color:var(--text-muted); margin-bottom:24px; font-size:0.9rem; }
+  .score-ring { width:120px; height:120px; border-radius:50%; border:3px solid var(--accent); display:flex; flex-direction:column; align-items:center; justify-content:center; margin:0 auto 24px; background:rgba(56,178,240,0.05); }
+  .score-ring .big-num { font-size:2rem; font-weight:800; color:var(--accent-light); }
+  .score-ring .small-label { font-size:0.68rem; color:var(--text-muted); letter-spacing:0.08em; }
+  .results-breakdown { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:28px; }
+  .breakdown-item { background:var(--card2); border:1px solid var(--border); border-radius:6px; padding:12px 20px; font-size:0.85rem; }
+  .breakdown-item strong { color:var(--accent); display:block; font-size:1.2rem; }
+  .breakdown-item span { color:var(--text-muted); }
+
+  /* FLASHCARD */
+  .fc-header { text-align:center; margin-bottom:26px; }
+  .fc-header h2 { font-size:1.8rem; font-weight:800; color:var(--accent-light); margin-bottom:6px; }
+  .fc-header p { color:var(--text-muted); font-size:0.88rem; }
+  .fc-filters { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:22px; }
+  .badge { display:inline-block; background:var(--card2); border:1px solid var(--border2); color:var(--text-muted); padding:6px 14px; border-radius:20px; font-size:0.78rem; cursor:pointer; transition:all 0.15s; }
+  .badge:hover, .badge.active { background:var(--accent-dim); color:var(--accent-light); border-color:var(--accent-dim); }
+  .fc-stats { display:flex; gap:14px; justify-content:center; margin-bottom:24px; flex-wrap:wrap; }
+  .fc-stat { background:var(--card); border:1px solid var(--border); border-radius:6px; padding:8px 20px; font-size:0.82rem; text-align:center; }
+  .fc-stat strong { display:block; font-size:1.1rem; font-family:'Courier New',monospace; }
+  .fc-stat.stat-know strong { color:var(--green); }
+  .fc-stat.stat-review strong { color:#e07060; }
+  .fc-stat.stat-total strong { color:var(--accent); }
+
+  .fc-scene { perspective:1100px; max-width:580px; margin:0 auto 22px; height:290px; }
+  .fc-card { width:100%; height:100%; position:relative; transform-style:preserve-3d; transition:transform 0.5s cubic-bezier(0.4,0.2,0.2,1); cursor:pointer; }
+  .fc-card.flipped { transform:rotateY(180deg); }
+  .fc-face { position:absolute; inset:0; background:var(--card); border:1px solid var(--border2); border-radius:12px; backface-visibility:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px; text-align:center; box-shadow:var(--shadow); }
+  .fc-face.back { transform:rotateY(180deg); background:var(--card2); border-color:var(--accent-dim); }
+  .fc-cat-tag { position:absolute; top:13px; left:13px; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-dim); font-weight:700; }
+  .fc-face-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-dim); margin-bottom:14px; font-weight:700; }
+  .fc-face.back .fc-face-label { color:var(--accent-dim); }
+  .fc-front-text { font-size:1.25rem; font-weight:700; color:var(--text); line-height:1.4; }
+  .fc-back-text { font-size:0.88rem; color:var(--text); line-height:1.65; white-space:pre-line; }
+  .fc-flip-hint { position:absolute; bottom:13px; font-size:0.7rem; color:var(--text-dim); }
+
+  .fc-counter { text-align:center; color:var(--text-muted); font-size:0.85rem; margin-bottom:18px; }
+  .fc-counter strong { color:var(--accent); }
+  .fc-card-status { text-align:center; font-size:0.8rem; color:var(--text-muted); margin-bottom:7px; height:20px; }
+  .fc-card-status .s-know { color:#7deebc; }
+  .fc-card-status .s-review { color:#f09080; }
+  .fc-controls { display:flex; gap:12px; justify-content:center; align-items:center; margin-bottom:18px; flex-wrap:wrap; }
+  .fc-nav-btn { background:var(--card); border:1px solid var(--border2); color:var(--text-muted); width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; transition:all 0.15s; }
+  .fc-nav-btn:hover:not(:disabled) { border-color:var(--accent-dim); color:var(--text); }
+  .fc-nav-btn:disabled { opacity:0.25; cursor:not-allowed; }
+  .btn-know { background:var(--green-bg); border:1px solid var(--green); color:#7deebc; padding:10px 22px; border-radius:var(--radius); font-size:0.86rem; cursor:pointer; font-weight:600; transition:background 0.15s; }
+  .btn-know:hover { background:#0f2e20; }
+  .btn-review { background:var(--red-bg); border:1px solid var(--red); color:#f09080; padding:10px 22px; border-radius:var(--radius); font-size:0.86rem; cursor:pointer; font-weight:600; transition:background 0.15s; }
+  .btn-review:hover { background:#2e1008; }
+  .fc-empty { text-align:center; padding:60px 20px; color:var(--text-muted); font-size:1rem; }
+
+  @media(max-width:600px){
+    nav{height:auto;padding:12px 14px;flex-wrap:wrap;gap:8px;}
+    .nav-logo{width:100%;}
+    .nav-btn{padding:7px 11px;font-size:0.76rem;}
+    .mode{padding:18px 13px 60px;}
+    .match-container{grid-template-columns:1fr;}
+    .factor-row{grid-template-columns:1fr;}
+    .fc-scene{height:260px;}
+    .question-card{padding:18px;}
+    .sdg-grid{grid-template-columns:1fr;}
+    .criteria-grid{grid-template-columns:1fr 1fr;}
+  }
 </style>
 </head>
 <body>
 
-<div class="game-wrapper">
-
-  <!-- TITLE -->
-  <header>
-    <h1>⚔️ CONTEMPORARY WORLD<br>STUDY QUEST</h1>
-    <p>▸ Powered by AI Game Master ◂</p>
-  </header>
-
-  <!-- STAT BAR -->
-  <div class="stat-bar" id="statBar">
-    <div class="level-badge">
-      <div class="stat-label">LEVEL</div>
-      <div class="level-num" id="levelNum">1</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-label">❤ HP</div>
-      <div class="bar-track"><div class="bar-fill hp-fill" id="hpBar" style="width:100%"></div></div>
-      <div class="stat-value" id="hpVal">100 / 100</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-label">✦ EXP</div>
-      <div class="bar-track"><div class="bar-fill exp-fill" id="expBar" style="width:0%"></div></div>
-      <div class="stat-value" id="expVal">0 / 100</div>
-    </div>
+<nav>
+  <div class="nav-logo">
+    <span class="main">🌐 CONTEMP WORLD</span>
+    <span class="sub">Long Quiz Interactive Study App</span>
   </div>
+  <button class="nav-btn active" onclick="switchMode('reviewer',this)">📖 Reviewer</button>
+  <button class="nav-btn" onclick="switchMode('quiz',this)">🧠 Quiz</button>
+  <button class="nav-btn" onclick="switchMode('flashcard',this)">🗂️ Flashcards</button>
+</nav>
 
-  <!-- CHAT WINDOW -->
-  <div class="chat-window" id="chatWindow">
-    <div id="startScreen">
-      <div style="font-family:'Press Start 2P',monospace;font-size:13px;color:var(--accent2);text-shadow:var(--glow2)">
-        🎮 SYSTEM ONLINE
-      </div>
-      <p>Welcome, Scholar! Your notes on <strong style="color:var(--gold)">Contemporary World</strong> are loaded as game lore.<br>
-         Your journey covers Global Cities, Demography, Migration, Food Security, and Global Citizenship.<br><br>
-         Are you ready to face the Game Master?</p>
-      <button id="startBtn" onclick="startGame()">▶ PRESS START</button>
-    </div>
+<div id="mode-reviewer" class="mode active">
+  <div class="rev-header">
+    <h1>Contemporary World Reviewer</h1>
+    <p>5 main topics · Tap any section to expand · Search any keyword below</p>
   </div>
-
-  <!-- INPUT ROW -->
-  <div class="input-row" id="inputRow" style="display:none">
-    <input id="userInput" type="text" placeholder="Type your answer here..." autocomplete="off" />
-    <button id="sendBtn" onclick="sendAnswer()">SEND ▶</button>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="reviewer-search" placeholder="Search terms, SDGs, factors, criteria…" oninput="handleSearch(this.value)">
   </div>
-
+  <div id="search-count"></div>
+  <div id="topics-container"></div>
 </div>
 
-<!-- OVERLAYS -->
-<div class="overlay" id="gameOverlay" style="display:none">
-  <div class="overlay-box" id="overlayBox">
-    <div class="overlay-title" id="overlayTitle">GAME OVER</div>
-    <div class="overlay-sub" id="overlaySub">You have fallen... but heroes rise again.</div>
-    <button class="overlay-btn" id="overlayBtn" onclick="restartLevel()">↺ TRY AGAIN</button>
+<div id="mode-quiz" class="mode">
+  <div id="quiz-start-screen" class="quiz-start">
+    <h2>🧠 Quiz Mode</h2>
+    <p>Test your knowledge across all 5 topics with varied question types.</p>
+    <div style="margin-bottom:14px;">
+      <p style="color:var(--text-muted);font-size:0.84rem;margin-bottom:12px;">Select question types:</p>
+      <div class="quiz-settings">
+        <button class="quiz-type-btn selected" data-type="mc" onclick="toggleType(this)">Multiple Choice</button>
+        <button class="quiz-type-btn selected" data-type="tf" onclick="toggleType(this)">True / False</button>
+        <button class="quiz-type-btn selected" data-type="fib" onclick="toggleType(this)">Fill in the Blank</button>
+        <button class="quiz-type-btn selected" data-type="match" onclick="toggleType(this)">Matching</button>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="startQuiz()">Begin Quiz →</button>
   </div>
+  <div id="quiz-active-screen" style="display:none;">
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress"></div></div>
+    <div class="quiz-meta">
+      <span id="quiz-counter">Question 1 of 40</span>
+      <span class="score-badge" id="quiz-score">Score: 0</span>
+    </div>
+    <div id="quiz-question-area"></div>
+    <div id="quiz-feedback"></div>
+    <div class="quiz-nav"><button class="btn-next" id="quiz-next-btn" onclick="nextQuestion()" style="display:none;">Next →</button></div>
+  </div>
+  <div id="quiz-results-screen" style="display:none;">
+    <div class="results-card">
+      <h2>Quiz Complete! 🎉</h2>
+      <p>Here's how you did on the Contemporary World reviewer.</p>
+      <div class="score-ring"><div class="big-num" id="res-pct">0%</div><div class="small-label">SCORE</div></div>
+      <div class="results-breakdown">
+        <div class="breakdown-item"><strong id="res-correct">0</strong><span>Correct</span></div>
+        <div class="breakdown-item"><strong id="res-wrong">0</strong><span>Wrong</span></div>
+        <div class="breakdown-item"><strong id="res-total">0</strong><span>Total</span></div>
+      </div>
+      <div id="res-remark" style="color:var(--text-muted);margin-bottom:26px;font-size:0.9rem;"></div>
+      <button class="btn-primary" onclick="resetQuiz()">Try Again</button>
+    </div>
+  </div>
+</div>
+
+<div id="mode-flashcard" class="mode">
+  <div class="fc-header">
+    <h2>🗂️ Flashcards</h2>
+    <p>Flip each card to reveal the answer. Mark what you know — review the rest.</p>
+  </div>
+  <div class="fc-filters" id="fc-filter-btns">
+    <button class="badge active" onclick="setFcFilter('all',this)">All</button>
+    <button class="badge" onclick="setFcFilter('term',this)">Key Terms</button>
+    <button class="badge" onclick="setFcFilter('criteria',this)">Criteria</button>
+    <button class="badge" onclick="setFcFilter('sdg',this)">SDGs</button>
+    <button class="badge" onclick="setFcFilter('factor',this)">Push/Pull Factors</button>
+    <button class="badge" onclick="setFcFilter('concept',this)">Concepts</button>
+    <button class="badge" onclick="setFcFilter('review',this)">Review Again</button>
+    <button class="badge" onclick="setFcFilter('know',this)">Know It ✓</button>
+  </div>
+  <div class="fc-stats">
+    <div class="fc-stat stat-total"><strong id="fc-stat-total">0</strong><span>Total</span></div>
+    <div class="fc-stat stat-know"><strong id="fc-stat-know">0</strong><span>Know It</span></div>
+    <div class="fc-stat stat-review"><strong id="fc-stat-review">0</strong><span>Review Again</span></div>
+  </div>
+  <div class="fc-counter"><strong id="fc-pos">1</strong> / <strong id="fc-total">1</strong></div>
+  <div class="fc-card-status" id="fc-status"></div>
+  <div class="fc-scene" id="fc-scene">
+    <div class="fc-card" id="fc-card" onclick="flipCard()">
+      <div class="fc-face front">
+        <span class="fc-cat-tag" id="fc-cat-tag">TERM</span>
+        <div class="fc-face-label">— Question —</div>
+        <div class="fc-front-text" id="fc-front-text">Loading…</div>
+        <div class="fc-flip-hint">tap to flip</div>
+      </div>
+      <div class="fc-face back">
+        <span class="fc-cat-tag" id="fc-cat-tag-back">TERM</span>
+        <div class="fc-face-label">— Answer —</div>
+        <div class="fc-back-text" id="fc-back-text">Loading…</div>
+      </div>
+    </div>
+  </div>
+  <div class="fc-controls">
+    <button class="fc-nav-btn" id="fc-prev-btn" onclick="fcNav(-1)" disabled>&#8592;</button>
+    <button class="btn-review" onclick="markCard('review')">Review Again</button>
+    <button class="btn-know" onclick="markCard('know')">Know It ✓</button>
+    <button class="fc-nav-btn" id="fc-next-btn" onclick="fcNav(1)">&#8594;</button>
+  </div>
+  <div id="fc-empty" class="fc-empty" style="display:none;">No cards in this category yet.</div>
 </div>
 
 <script>
-// ─── GAME STATE ───────────────────────────────────────────────────────────────
-const MAX_HP = 100;
-let hp = MAX_HP, exp = 0, level = 1;
-let gameStarted = false;
-let isWaiting = false;           // waiting for GM response
-let conversationHistory = [];    // full message history for the API
+// ===================== REVIEWER DATA =====================
+const sdgs=[['No Poverty','End poverty everywhere'],['Zero Hunger','End hunger and improve nutrition'],['Good Health and Well-Being','Ensure healthy lives'],['Quality Education','Provide inclusive education'],['Gender Equality','Equal rights for all genders'],['Clean Water and Sanitation','Safe water access'],['Affordable and Clean Energy','Sustainable energy for everyone'],['Decent Work and Economic Growth','Promote jobs and economic growth'],['Industry, Innovation, and Infrastructure','Build resilient infrastructure'],['Reduced Inequalities','Reduce inequality within and among countries'],['Sustainable Cities and Communities','Make cities safe and sustainable'],['Responsible Consumption and Production','Reduce waste and overconsumption'],['Climate Action','Fight climate change'],['Life Below Water','Protect oceans and marine life'],['Life on Land','Protect forests and biodiversity'],['Peace, Justice, and Strong Institutions','Promote justice and peace'],['Partnerships for the Goals','Strengthen global cooperation']];
 
-// ─── LORE (Notes) ─────────────────────────────────────────────────────────────
-const LORE = `
-CONTEMPORARY WORLD — REVIEWER NOTES
+const reviewerTopics=[
+  {id:1,icon:'🏙️',title:'Global City',html:`
+    <h3>Definition</h3>
+    <p><span class="hl-term">Global City</span> — A city that plays an important role in the world economy and globalization. It is a center of business, finance, migration, culture, information, and political activities. Global cities connect different countries through trade, technology, transportation, and communication.</p>
+    <p><span class="hl-example">Examples: New York City, London, and Tokyo.</span></p>
+    <h3>Glocal</h3>
+    <p><span class="hl-term">Glocal</span> — Combines <em>globalization</em> and <em>localization</em>. Adapting global products or services to fit local culture and needs.</p>
+    <p><span class="hl-example">Example: International fast-food chains changing their menu to match local tastes.</span></p>
+    <h3>A.T. Kearney's Five Dimensions</h3>
+    <div class="criteria-grid">
+      <div class="criteria-item"><div class="c-num">DIMENSION 1</div><div class="c-title">Business Activity</div><div class="c-desc">Company headquarters, capital markets, international conferences, ports and airports</div></div>
+      <div class="criteria-item"><div class="c-num">DIMENSION 2</div><div class="c-title">Information Exchange</div><div class="c-desc">Internet presence, international news bureaus, broadband access, media accessibility</div></div>
+      <div class="criteria-item"><div class="c-num">DIMENSION 3</div><div class="c-title">Human Capital</div><div class="c-desc">Foreign-born population, universities, international schools, skilled workers</div></div>
+      <div class="criteria-item"><div class="c-num">DIMENSION 4</div><div class="c-title">Cultural Experience</div><div class="c-desc">Museums, sports events, tourism, food and entertainment</div></div>
+      <div class="criteria-item"><div class="c-num">DIMENSION 5</div><div class="c-title">Political Engagement</div><div class="c-desc">Embassies, consulates, international organizations, political conferences</div></div>
+    </div>
+    <h3>Mori Memorial Foundation Criteria (6)</h3>
+    <div class="criteria-grid">
+      <div class="criteria-item"><div class="c-num">MMF 1</div><div class="c-title">Economy</div><div class="c-desc">Market attractiveness, business environment, and economic vitality</div></div>
+      <div class="criteria-item"><div class="c-num">MMF 2</div><div class="c-title">Research & Development</div><div class="c-desc">Quality of research institutions and support for researchers</div></div>
+      <div class="criteria-item"><div class="c-num">MMF 3</div><div class="c-title">Cultural Interaction</div><div class="c-desc">Tourism, shopping, dining, and international interaction</div></div>
+      <div class="criteria-item"><div class="c-num">MMF 4</div><div class="c-title">Livability</div><div class="c-desc">Safety, healthcare, working environment, and cost of living</div></div>
+      <div class="criteria-item"><div class="c-num">MMF 5</div><div class="c-title">Environment</div><div class="c-desc">Pollution control, ecology, and natural environment</div></div>
+      <div class="criteria-item"><div class="c-num">MMF 6</div><div class="c-title">Accessibility</div><div class="c-desc">Transportation systems and international connectivity</div></div>
+    </div>
+    <h3>Economist Intelligence Unit (EIU) Criteria (8)</h3>
+    <div class="criteria-grid">
+      <div class="criteria-item"><div class="c-num">EIU 1</div><div class="c-title">Economic Strength</div><div class="c-desc">GDP, economic growth, and market integration</div></div>
+      <div class="criteria-item"><div class="c-num">EIU 2</div><div class="c-title">Human Capital</div><div class="c-desc">Education, healthcare, entrepreneurship, workforce quality</div></div>
+      <div class="criteria-item"><div class="c-num">EIU 3</div><div class="c-title">Institutional Effectiveness</div><div class="c-desc">Government effectiveness, laws, and taxation</div></div>
+      <div class="criteria-item"><div class="c-num">EIU 4</div><div class="c-title">Financial Maturity</div><div class="c-desc">Strength of financial institutions and markets</div></div>
+      <div class="criteria-item"><div class="c-num">EIU 5</div><div class="c-title">Global Appeal</div><div class="c-desc">International flights, universities, conferences, global companies</div></div>
+      <div class="criteria-item"><div class="c-num">EIU 6</div><div class="c-title">Physical Capital</div><div class="c-desc">Infrastructure, transportation, and telecommunications</div></div>
+      <div class="criteria-item"><div class="c-num">EIU 7</div><div class="c-title">Environment & Natural Hazards</div><div class="c-desc">Disaster risks and environmental governance</div></div>
+      <div class="criteria-item"><div class="c-num">EIU 8</div><div class="c-title">Social & Cultural Character</div><div class="c-desc">Human rights, diversity, openness, and cultural vibrancy</div></div>
+    </div>
+    <h3>Key Characteristics of Global Cities</h3>
+    <ul>
+      <li><span class="hl-term">Advanced Producer Services Node</span> — Provides specialized banking, finance, law, insurance, and technology services.</li>
+      <li><span class="hl-term">Economic Giants with Great GDP</span> — Produce large amounts of goods/services and strongly influence the economy.</li>
+      <li><span class="hl-term">International Gateway</span> — Connect countries through airports, seaports, transportation, and trade.</li>
+      <li><span class="hl-term">Political and Cultural Hub</span> — Centers of politics, education, fashion, arts, entertainment, and culture.</li>
+      <li><span class="hl-term">Ranking</span> — Based on economy, infrastructure, political influence, culture, research, and quality of life.</li>
+    </ul>`},
+  {id:2,icon:'👥',title:'Global Demography',html:`
+    <h3>Definition</h3>
+    <p><span class="hl-term">Demography</span> — The study of population and population changes through: <strong>Birth, Death, Migration, Aging</strong>. Helps governments plan for healthcare, jobs, education, and future development.</p>
+    <h3>Destiny vs Choice</h3>
+    <p>Population changes are <strong>not fixed or permanent</strong>. Human decisions, government policies, disasters, migration, and economic conditions shape demography.</p>
+    <h3>Erratic Mortality</h3>
+    <p><span class="hl-term">Erratic Mortality</span> — Sudden increases in death caused by disease outbreaks, wars, famines, and natural disasters. These affect population growth and stability.</p>
+    <h3>Five Big Demographic Trends</h3>
+    <div class="criteria-grid">
+      <div class="criteria-item"><div class="c-num">TREND 1</div><div class="c-title">Increasing Older Population</div><div class="c-desc">Number of elderly increasing while number of children decreases</div></div>
+      <div class="criteria-item"><div class="c-num">TREND 2</div><div class="c-title">Shift to Non-Communicable Diseases</div><div class="c-desc">Heart disease, cancer, depression becoming more common than infectious diseases</div></div>
+      <div class="criteria-item"><div class="c-num">TREND 3</div><div class="c-title">Emerging Economies Aging Fast</div><div class="c-desc">Developing countries aging quickly before becoming economically stable</div></div>
+      <div class="criteria-item"><div class="c-num">TREND 4</div><div class="c-title">Rising Old-Age Dependency Ratio</div><div class="c-desc">Japan, Germany, Italy, Spain — fewer workers supporting more elderly citizens</div></div>
+      <div class="criteria-item"><div class="c-num">TREND 5</div><div class="c-title">Demographic Dividend</div><div class="c-desc">More working-age people than dependents = economic growth; decreases as elderly population grows</div></div>
+    </div>`},
+  {id:3,icon:'✈️',title:'Global Migration',html:`
+    <h3>Definition</h3>
+    <p><span class="hl-term">Global Migration</span> — Movement of people from one place to another permanently or temporarily.</p>
+    <h3>Types of Migration</h3>
+    <ul>
+      <li><span class="hl-term">Internal Migration</span> — Movement within the same country. <span class="hl-example">Example: Moving from Manila to Davao.</span></li>
+      <li><span class="hl-term">International Migration</span> — Movement from one country to another.</li>
+    </ul>
+    <h3>Two Forms of Migration</h3>
+    <ul>
+      <li><span class="hl-term">Immigration</span> — Entering another country to live permanently.</li>
+      <li><span class="hl-term">Emigration</span> — Leaving one's country to live elsewhere.</li>
+    </ul>
+    <h3>Push & Pull Factors</h3>
+    <div class="factor-section-label push">⬆ PUSH FACTORS — Negative conditions that force people to LEAVE</div>
+    <div class="factor-row">
+      <div class="factor-box"><div class="f-label push">Social Push</div><div class="f-items">Racism, Discrimination, Poor healthcare, Poor education</div></div>
+      <div class="factor-box"><div class="f-label push">Political Push</div><div class="f-items">War, Oppressive government, Political instability</div></div>
+      <div class="factor-box"><div class="f-label push">Economic Push</div><div class="f-items">Poverty, Unemployment, Low wages</div></div>
+      <div class="factor-box"><div class="f-label push">Environmental Push</div><div class="f-items">Natural disasters, Pollution, Drought, Epidemics</div></div>
+    </div>
+    <div class="factor-section-label pull" style="margin-top:16px;">⬇ PULL FACTORS — Positive conditions that ATTRACT people</div>
+    <div class="factor-row">
+      <div class="factor-box"><div class="f-label pull">Social Pull</div><div class="f-items">Better education, Better healthcare, Safety, Equality</div></div>
+      <div class="factor-box"><div class="f-label pull">Political Pull</div><div class="f-items">Peace, Human rights, Stable government</div></div>
+      <div class="factor-box"><div class="f-label pull">Economic Pull</div><div class="f-items">High salaries, Better jobs, Economic opportunities</div></div>
+      <div class="factor-box"><div class="f-label pull">Environmental Pull</div><div class="f-items">Clean environment, Stable climate, Safer surroundings</div></div>
+    </div>
+    <h3>Transnational Migration</h3>
+    <p>Migrants maintain strong connections with both their <strong>home country</strong> and <strong>host country</strong> through family, work, culture, or communication.</p>
+    <h3>Research in Migration — Research helps:</h3>
+    <ul>
+      <li>Identify causes of migration</li>
+      <li>Create effective government policies</li>
+      <li>Understand migrant experiences</li>
+      <li>Predict future migration trends</li>
+      <li>Correct misconceptions about migrants</li>
+    </ul>`},
+  {id:4,icon:'🌾',title:'Global Food Security',html:`
+    <h3>Definition</h3>
+    <p><span class="hl-term">Food Security</span> — People always have access to enough safe and nutritious food for healthy living.</p>
+    <p><span class="hl-term">Stability</span> — Food should be consistently available even during disasters or crises.</p>
+    <p><span class="hl-term">Sustainability</span> — Food systems should protect the environment and future resources.</p>
+    <h3>3 Pillars of Sustainability</h3>
+    <div class="criteria-grid">
+      <div class="criteria-item"><div class="c-num">PILLAR 1</div><div class="c-title">Environmental Pillar</div><div class="c-desc">Protecting natural resources and the environment</div></div>
+      <div class="criteria-item"><div class="c-num">PILLAR 2</div><div class="c-title">Social Pillar</div><div class="c-desc">Promoting equality, health, education, and quality of life</div></div>
+      <div class="criteria-item"><div class="c-num">PILLAR 3</div><div class="c-title">Economic Pillar</div><div class="c-desc">Supporting jobs, income, and economic growth</div></div>
+    </div>
+    <h3>4 Concepts of Food Security</h3>
+    <div class="criteria-grid">
+      <div class="criteria-item"><div class="c-title">1. Availability</div><div class="c-desc">Food must be physically present and produced</div></div>
+      <div class="criteria-item"><div class="c-title">2. Access</div><div class="c-desc">People must be able to obtain food</div></div>
+      <div class="criteria-item"><div class="c-title">3. Utilization</div><div class="c-desc">Food must be properly used for nutrition and health</div></div>
+      <div class="criteria-item"><div class="c-title">4. Stability</div><div class="c-desc">Supply must remain consistent even during crises</div></div>
+    </div>
+    <h3>Why Food Security Matters</h3>
+    <p>Affects: <strong>Health, Economic stability, Poverty reduction, National development, Human survival</strong></p>
+    <p>Problems: <strong>Climate change, Poverty, Conflict, Population growth, Natural disasters</strong></p>
+    <h3>The 17 SDGs — United Nations Target: 2030</h3>
+    <div class="sdg-grid">${sdgs.map((s,i)=>`<div class="sdg-item"><div class="sdg-num">${i+1}</div><div class="sdg-text"><div class="sdg-name">${s[0]}</div><div class="sdg-desc">${s[1]}</div></div></div>`).join('')}</div>`},
+  {id:5,icon:'🌍',title:'Global Citizenship',html:`
+    <h3>Definition</h3>
+    <p><span class="hl-term">Global Citizenship</span> — Seeing yourself not only as a citizen of one country but as part of the whole world. A global citizen believes all people deserve equal treatment regardless of nationality, race, gender, birthplace, or background. Global citizenship is <strong>NOT a legal status</strong> — it is a mindset and way of living.</p>
+    <p><span class="hl-term">Global Citizen</span> — A person who sees themselves as part of the whole world and cares about people, peace, human rights, and global issues.</p>
+    <p><span class="hl-term">Cosmopolitanism</span> — The belief that all humans belong to one global community. Everyone has equal rights and responsibilities.</p>
+    <h3>3 Perspectives on Global Citizenship</h3>
+    <div class="perspective-card"><div class="p-title">1. Realist Perspective</div><div class="p-body">Focuses on interests, power, and security of nation-states. Countries prioritize their own survival and sovereignty. Conflicts are considered unavoidable. Global citizenship has only a <strong>limited role</strong>. Powerful nations might use it to influence weaker countries.</div><div class="p-example">"I am a Filipino citizen and a global citizen, but my country's interest comes first."</div></div>
+    <div class="perspective-card"><div class="p-title">2. Liberal Perspective</div><div class="p-body">Believes countries can cooperate peacefully. Supports international law, human rights, and global organizations. Promotes peace, fairness, and shared responsibility. Cooperation among countries is important in solving global problems.</div><div class="p-example">"International cooperation is important." "Countries should follow international law."</div></div>
+    <div class="perspective-card"><div class="p-title">3. Cosmopolitan Perspective</div><div class="p-body">Based on the idea that people are citizens of the world first. Encourages global democracy and participation across borders. Accepts diversity and cultural differences. Humanity is more important than nationality.</div><div class="p-example">"Being different is normal." "We are all global citizens regardless of where we are born."</div></div>
+    <h3>Global Civil Society</h3>
+    <p>Organizations and groups that work globally to protect people and the environment. They: organize campaigns, raise awareness, lobby governments, protest injustice, mobilize people, encourage activism.</p>
+    <h3>Types of Global Citizens (Falk, 1994)</h3>
+    <div class="criteria-grid">
+      <div class="criteria-item"><div class="c-title">Global Reformers</div><div class="c-desc">Work for global change and reforms</div></div>
+      <div class="criteria-item"><div class="c-title">Elite Global Business People</div><div class="c-desc">Operate businesses internationally</div></div>
+      <div class="criteria-item"><div class="c-title">Global Environmental Managers</div><div class="c-desc">Focus on environmental protection</div></div>
+      <div class="criteria-item"><div class="c-title">Politically Conscious Regionalists</div><div class="c-desc">Support regional cooperation and political awareness</div></div>
+      <div class="criteria-item"><div class="c-title">Trans-national Activists</div><div class="c-desc">Fight for causes across countries</div></div>
+    </div>
+    <h3>Consumer Activism & Ethical Consumerism</h3>
+    <p><span class="hl-term">Consumer Activism</span> — Consumers support global citizenship through responsible buying. They may boycott companies that harm the environment, exploit workers, or practice injustice.</p>
+    <p><span class="hl-term">Ethical Consumerism</span> — Buying environmentally friendly products, supporting ethical companies, and avoiding harmful products.</p>
+    <h3>Global Citizen as an Organization</h3>
+    <p>An international organization that encourages people to take action on global issues. Belief: <strong>Global problems need global solutions. Citizens must pressure leaders to create change.</strong></p>
+    <h3>7 Characteristics of a Global Citizen</h3>
+    <ul>
+      <li>Be aware of the wider world</li>
+      <li>Recognize all humans as equals</li>
+      <li>Respect and value diversity</li>
+      <li>Stand against injustice</li>
+      <li>Live sustainably</li>
+      <li>Understand interconnectedness</li>
+      <li>Work for peace and a better world</li>
+    </ul>`}
+];
 
-GLOBAL CITY
-Global City: A city that plays an important role in the world economy and globalization. Center of business, finance, migration, culture, information, and political activities. Connects countries through trade, technology, transportation, and communication. Examples: New York City, London, Tokyo.
-Glocal: Combines globalization and localization. Adapting global products/services to fit local culture/needs. Example: International fast-food chains changing menus to match local tastes.
+// ===================== QUIZ DATA =====================
+const allQuestions=[
+  // MULTIPLE CHOICE
+  {type:'mc',q:"What does the term 'Glocal' mean?",opts:["A global city with local laws","Adapting global products to fit local culture and needs","Globalizing all local traditions","A city that trades only locally"],ans:1,exp:"Glocal combines globalization and localization — adapting global products/services to fit local culture and needs (e.g., fast-food chains customizing menus)."},
+  {type:'mc',q:"Which cities are cited as examples of Global Cities?",opts:["Paris, Berlin, Beijing","Manila, Singapore, Bangkok","New York City, London, Tokyo","Dubai, Toronto, Sydney"],ans:2,exp:"The reviewer explicitly names New York City, London, and Tokyo as examples of global cities."},
+  {type:'mc',q:"Which A.T. Kearney dimension measures embassies, consulates, and international organizations?",opts:["Business Activity","Cultural Experience","Human Capital","Political Engagement"],ans:3,exp:"Political Engagement is A.T. Kearney's 5th dimension, measured through embassies, consulates, international organizations, and political conferences."},
+  {type:'mc',q:"How many criteria does the Mori Memorial Foundation use to rank global cities?",opts:["4","5","6","8"],ans:2,exp:"The Mori Memorial Foundation uses 6 criteria: Economy, Research & Development, Cultural Interaction, Livability, Environment, and Accessibility."},
+  {type:'mc',q:"Which EIU criterion covers government effectiveness, laws, and taxation?",opts:["Economic Strength","Global Appeal","Institutional Effectiveness","Financial Maturity"],ans:2,exp:"Institutional Effectiveness (EIU criterion 3) covers government effectiveness, laws, and taxation."},
+  {type:'mc',q:"How many criteria does the EIU use to rank global cities?",opts:["5","6","7","8"],ans:3,exp:"The Economist Intelligence Unit (EIU) uses 8 criteria, including Economic Strength, Human Capital, Institutional Effectiveness, Financial Maturity, Global Appeal, Physical Capital, Environment & Natural Hazards, and Social & Cultural Character."},
+  {type:'mc',q:"Demography studies population changes through which four factors?",opts:["Health, Economy, Culture, Technology","Birth, Death, Migration, Aging","War, Disease, Famine, Poverty","Government, Policy, Census, Data"],ans:1,exp:"Demography studies population changes through birth, death, migration, and aging, helping governments plan for healthcare, jobs, education, and development."},
+  {type:'mc',q:"Which demographic trend describes countries like Japan, Germany, Italy, and Spain?",opts:["Demographic Dividend","Shift to Non-Communicable Diseases","Rising Old-Age Dependency Ratio","Erratic Mortality"],ans:2,exp:"These countries have a Rising Old-Age Dependency Ratio — fewer workers supporting more elderly citizens."},
+  {type:'mc',q:"The Demographic Dividend occurs when:",opts:["More elderly people than workers exist","More working-age people than dependents leads to economic growth","Birth rates drop significantly","Migration rates are at their highest"],ans:1,exp:"The Demographic Dividend is when a larger working-age population than dependents drives economic growth. It decreases as the elderly population grows."},
+  {type:'mc',q:"Moving from Manila to Davao is an example of:",opts:["International Migration","Transnational Migration","Internal Migration","Emigration"],ans:2,exp:"Moving within the same country is Internal Migration. Manila to Davao are both within the Philippines."},
+  {type:'mc',q:"What is Transnational Migration?",opts:["Moving between two foreign countries","Migrants maintaining connections with both home and host countries","Illegal immigration across borders","Moving permanently to escape war"],ans:1,exp:"Transnational Migration means migrants maintain strong connections with both their home country and host country through family, work, culture, or communication."},
+  {type:'mc',q:"Poverty, unemployment, and low wages are examples of which type of factor?",opts:["Environmental Pull Factor","Economic Push Factor","Political Pull Factor","Social Push Factor"],ans:1,exp:"Economic Push Factors are negative economic conditions that force people to leave — poverty, unemployment, and low wages."},
+  {type:'mc',q:"Clean environment and stable climate are examples of:",opts:["Political push factors","Environmental pull factors","Social push factors","Economic pull factors"],ans:1,exp:"Environmental pull factors are positive environmental conditions that attract people — clean environment and stable climate."},
+  {type:'mc',q:"Food Security means:",opts:["Free food distributed by the government","People always have access to enough safe and nutritious food for healthy living","Locally produced food for all citizens","Food available at low government prices"],ans:1,exp:"Food Security means people always have access to enough safe and nutritious food for healthy living."},
+  {type:'mc',q:"Which is NOT one of the 3 Pillars of Sustainability?",opts:["Environmental Pillar","Social Pillar","Political Pillar","Economic Pillar"],ans:2,exp:"The 3 Pillars of Sustainability are Environmental, Social, and Economic. There is no Political Pillar."},
+  {type:'mc',q:"The 17 SDGs were created by which organization?",opts:["The World Bank","A.T. Kearney","The United Nations","The International Monetary Fund"],ans:2,exp:"The SDGs are global goals created by the United Nations to improve the world by 2030."},
+  {type:'mc',q:"SDG #13 is:",opts:["Zero Hunger","Life Below Water","Climate Action","Life on Land"],ans:2,exp:"SDG 13 is Climate Action — to fight climate change."},
+  {type:'mc',q:"SDG #14 focuses on:",opts:["Climate Action","Life Below Water","Life on Land","Peace and Justice"],ans:1,exp:"SDG 14 is Life Below Water — protecting oceans and marine life."},
+  {type:'mc',q:"SDG #2 is:",opts:["No Poverty","Zero Hunger","Good Health and Well-Being","Quality Education"],ans:1,exp:"SDG 2 is Zero Hunger — ending hunger and improving nutrition. SDG 1 is No Poverty."},
+  {type:'mc',q:"Global citizenship is best described as:",opts:["A legal status granted by the UN","A passport that allows travel anywhere","A mindset of caring about the whole world","A dual citizenship recognized internationally"],ans:2,exp:"Global citizenship is NOT a legal status. It is a mindset and way of living — seeing yourself as part of the whole world."},
+  {type:'mc',q:"Cosmopolitanism is the belief that:",opts:["Nations must compete for resources","All humans belong to one global community with equal rights","Citizens owe loyalty only to their nation","Only world leaders are true global citizens"],ans:1,exp:"Cosmopolitanism is the belief that all humans belong to one global community and everyone has equal rights and responsibilities."},
+  {type:'mc',q:"The Realist perspective on global citizenship views it as:",opts:["The most important identity","More important than nationality","Having only a limited role","The foundation of international law"],ans:2,exp:"The Realist perspective believes global citizenship has only a limited role, as nations prioritize their own survival and sovereignty first."},
+  {type:'mc',q:"According to Falk (1994), which type of global citizen focuses on environmental protection?",opts:["Global Reformers","Trans-national Activists","Global Environmental Managers","Politically Conscious Regionalists"],ans:2,exp:"Global Environmental Managers (Falk, 1994) specifically focus on environmental protection."},
+  {type:'mc',q:"Ethical Consumerism involves:",opts:["Buying the cheapest products","Buying environmentally friendly and ethical products","Only buying from local businesses","Boycotting all international corporations"],ans:1,exp:"Ethical Consumerism means buying environmentally friendly products, supporting ethical companies, and avoiding harmful products."},
+  // TRUE OR FALSE
+  {type:'tf',q:"The Mori Memorial Foundation uses 8 criteria to rank global cities.",ans:false,exp:"False. The Mori Memorial Foundation uses 6 criteria. It is the EIU that uses 8 criteria."},
+  {type:'tf',q:"Internal Migration means moving from one country to another.",ans:false,exp:"False. Internal Migration is movement within the same country. Moving between countries is International Migration."},
+  {type:'tf',q:"Emigration means entering another country to live permanently.",ans:false,exp:"False. Emigration is leaving one's country to live elsewhere. Immigration is entering another country permanently."},
+  {type:'tf',q:"The Demographic Dividend occurs when there are more working-age people than dependents.",ans:true,exp:"Correct. The Demographic Dividend happens when a larger working-age population than dependents leads to economic growth."},
+  {type:'tf',q:"Food security depends on availability, access, utilization, and stability of food supply.",ans:true,exp:"Correct. These are the 4 concepts of food security: Availability, Access, Utilization, and Stability."},
+  {type:'tf',q:"SDG #1 is Zero Hunger.",ans:false,exp:"False. SDG #1 is No Poverty. SDG #2 is Zero Hunger."},
+  {type:'tf',q:"There are 17 Sustainable Development Goals created by the United Nations.",ans:true,exp:"Correct. The United Nations created 17 SDGs to improve the world by 2030."},
+  {type:'tf',q:"Global citizenship is a legal status granted by the United Nations.",ans:false,exp:"False. Global citizenship is NOT a legal status — it is a mindset and way of living."},
+  {type:'tf',q:"The Liberal perspective on global citizenship supports international law and global cooperation.",ans:true,exp:"Correct. The Liberal perspective believes countries can cooperate peacefully and supports international law, human rights, and global organizations."},
+  {type:'tf',q:"War and political instability are examples of political push factors.",ans:true,exp:"Correct. War, oppressive government, and political instability are all political push factors — negative conditions that force people to leave."},
+  {type:'tf',q:"A.T. Kearney uses 5 dimensions for evaluating global cities.",ans:true,exp:"Correct. A.T. Kearney's Five Dimensions are: Business Activity, Information Exchange, Human Capital, Cultural Experience, and Political Engagement."},
+  {type:'tf',q:"Erratic Mortality refers to gradual, predictable changes in population.",ans:false,exp:"False. Erratic Mortality refers to sudden increases in death caused by disease outbreaks, wars, famines, or natural disasters — not gradual changes."},
+  // FILL IN THE BLANK
+  {type:'fib',q:"___ combines globalization and localization to adapt global products to local needs.",ans:"Glocal",hint:"(one word)",exp:"Glocal is the term combining globalization and localization — adapting global products/services to fit local culture and needs."},
+  {type:'fib',q:"A.T. Kearney's dimension that measures universities, foreign-born population, and skilled workers is called ___ Capital.",ans:"Human",hint:"(one word)",exp:"Human Capital is A.T. Kearney's 3rd dimension — measuring quality and diversity of people through foreign-born population, universities, international schools, and skilled workers."},
+  {type:'fib',q:"The EIU criterion covering infrastructure, transportation, and telecommunications is called ___ Capital.",ans:"Physical",hint:"(one word)",exp:"Physical Capital (EIU criterion 6) covers infrastructure, transportation, and telecommunications."},
+  {type:'fib',q:"Sudden increases in death caused by disease outbreaks, wars, or famines is called Erratic ___.",ans:"Mortality",hint:"(one word)",exp:"Erratic Mortality refers to sudden increases in death from disease outbreaks, wars, famines, or natural disasters."},
+  {type:'fib',q:"The ___ Dividend occurs when more working-age people than dependents leads to economic growth.",ans:"Demographic",hint:"(one word)",exp:"The Demographic Dividend is when a larger working-age population than dependents drives economic growth."},
+  {type:'fib',q:"___ Migration refers to movement within the same country.",ans:"Internal",hint:"(one word)",exp:"Internal Migration is movement within the same country, like moving from Manila to Davao."},
+  {type:'fib',q:"The three pillars of sustainability are Environmental, Social, and ___ pillars.",ans:"Economic",hint:"(one word)",exp:"The 3 Pillars of Sustainability are Environmental, Social, and Economic."},
+  {type:'fib',q:"SDG #___ is Climate Action.",ans:"13",hint:"(number 1–17)",exp:"SDG 13 is Climate Action — to fight climate change."},
+  {type:'fib',q:"The belief that all humans belong to one global community with equal rights is called ___.",ans:"Cosmopolitanism",hint:"(one word)",exp:"Cosmopolitanism is the belief that all humans belong to one global community with equal rights and responsibilities."},
+  {type:'fib',q:"Migrants who maintain strong ties with both home and host country practice ___ Migration.",ans:"Transnational",hint:"(one word)",exp:"Transnational Migration means migrants keep strong connections with both home and host countries through family, work, culture, or communication."},
+  // MATCHING
+  {type:'match',instruction:"Match each A.T. Kearney dimension to what it measures.",pairs:[
+    {left:"Business Activity",right:"Company headquarters & capital markets"},
+    {left:"Information Exchange",right:"Internet presence & news bureaus"},
+    {left:"Human Capital",right:"Universities & skilled workers"},
+    {left:"Cultural Experience",right:"Museums, sports events & tourism"},
+    {left:"Political Engagement",right:"Embassies & consulates"},
+  ]},
+  {type:'match',instruction:"Match each SDG number to its correct name.",pairs:[
+    {left:"SDG 1",right:"No Poverty"},
+    {left:"SDG 2",right:"Zero Hunger"},
+    {left:"SDG 7",right:"Affordable and Clean Energy"},
+    {left:"SDG 13",right:"Climate Action"},
+    {left:"SDG 17",right:"Partnerships for the Goals"},
+  ]},
+  {type:'match',instruction:"Match each migration factor to its correct category.",pairs:[
+    {left:"Poverty & unemployment",right:"Economic Push Factor"},
+    {left:"Better jobs & high salaries",right:"Economic Pull Factor"},
+    {left:"War & political instability",right:"Political Push Factor"},
+    {left:"Clean environment & stable climate",right:"Environmental Pull Factor"},
+    {left:"Racism & discrimination",right:"Social Push Factor"},
+  ]},
+  {type:'match',instruction:"Match each global citizenship perspective to its key idea.",pairs:[
+    {left:"Realist Perspective",right:"Nation's interests come first"},
+    {left:"Liberal Perspective",right:"Countries should cooperate internationally"},
+    {left:"Cosmopolitan Perspective",right:"Humanity is more important than nationality"},
+  ]},
+  {type:'match',instruction:"Match each Falk (1994) type of global citizen to their role.",pairs:[
+    {left:"Global Reformers",right:"Work for global change and reforms"},
+    {left:"Global Environmental Managers",right:"Focus on environmental protection"},
+    {left:"Trans-national Activists",right:"Fight for causes across countries"},
+    {left:"Politically Conscious Regionalists",right:"Support regional cooperation"},
+  ]},
+];
 
-A.T. KEARNEY'S FIVE DIMENSIONS:
-1. Business Activity — company headquarters, capital markets, international conferences, ports/airports.
-2. Information Exchange — internet presence, international news bureaus, broadband access, media accessibility.
-3. Human Capital — foreign-born population, universities, international schools, skilled workers.
-4. Cultural Experience — museums, sports events, tourism, food and entertainment.
-5. Political Engagement — embassies, consulates, international organizations, political conferences.
+// ===================== FLASHCARD DATA =====================
+const allFlashcards=[
+  {cat:'term',f:"Global City",b:"A city that plays an important role in the world economy and globalization. Center of business, finance, migration, culture, information, and political activities. Examples: NYC, London, Tokyo."},
+  {cat:'term',f:"Glocal",b:"Combining globalization + localization — adapting global products or services to fit local culture and needs. Example: fast-food chains customizing menus per country."},
+  {cat:'term',f:"Demography",b:"The study of population and population changes through birth, death, migration, and aging. Helps governments plan healthcare, jobs, education, and development."},
+  {cat:'term',f:"Erratic Mortality",b:"Sudden increases in death caused by disease outbreaks, wars, famines, or natural disasters — affecting population growth and stability."},
+  {cat:'term',f:"Demographic Dividend",b:"When more working-age people than dependents exist, leading to economic growth. Advantage decreases as the elderly population grows."},
+  {cat:'term',f:"Internal Migration",b:"Movement within the same country. Example: Moving from Manila to Davao."},
+  {cat:'term',f:"International Migration",b:"Movement from one country to another."},
+  {cat:'term',f:"Immigration",b:"Entering another country to live permanently."},
+  {cat:'term',f:"Emigration",b:"Leaving one's country to live elsewhere."},
+  {cat:'term',f:"Transnational Migration",b:"Migrants maintain strong connections with both their home country and host country through family, work, culture, or communication."},
+  {cat:'term',f:"Food Security",b:"People always have access to enough safe and nutritious food for healthy living."},
+  {cat:'term',f:"Global Citizenship",b:"NOT a legal status — it is a mindset and way of living. Seeing yourself as part of the whole world, caring about all people equally regardless of nationality, race, gender, or background."},
+  {cat:'term',f:"Cosmopolitanism",b:"The belief that all humans belong to one global community. Everyone has equal rights and responsibilities."},
+  {cat:'term',f:"Consumer Activism",b:"Supporting global citizenship through responsible buying — boycotting companies that harm the environment, exploit workers, or practice injustice."},
+  {cat:'term',f:"Ethical Consumerism",b:"Buying environmentally friendly products, supporting ethical companies, and avoiding harmful products."},
+  {cat:'term',f:"Old-Age Dependency Ratio",b:"Countries like Japan, Germany, Italy, and Spain where fewer workers support more elderly citizens."},
+  {cat:'term',f:"Push Factor",b:"Negative conditions that force people to leave their current location (e.g., poverty, war, discrimination, natural disasters)."},
+  {cat:'term',f:"Pull Factor",b:"Positive conditions that attract people to a new place (e.g., better jobs, peace, clean environment, better education)."},
+  {cat:'term',f:"Advanced Producer Services",b:"Specialized services global cities provide: banking, finance, law, insurance, and technology that support the global economy."},
+  {cat:'criteria',f:"A.T. Kearney: Business Activity",b:"Measures economic performance through company headquarters, capital markets, international conferences, ports and airports."},
+  {cat:'criteria',f:"A.T. Kearney: Information Exchange",b:"Measures communication and media influence through internet presence, news bureaus, broadband access, and media accessibility."},
+  {cat:'criteria',f:"A.T. Kearney: Human Capital",b:"Measures quality and diversity of people through foreign-born population, universities, international schools, and skilled workers."},
+  {cat:'criteria',f:"A.T. Kearney: Cultural Experience",b:"Measures cultural influence through museums, sports events, tourism, food and entertainment."},
+  {cat:'criteria',f:"A.T. Kearney: Political Engagement",b:"Measures political importance through embassies, consulates, international organizations, and political conferences."},
+  {cat:'criteria',f:"Mori: Economy",b:"Market attractiveness, business environment, and economic vitality."},
+  {cat:'criteria',f:"Mori: Research & Development",b:"Quality of research institutions and support for researchers."},
+  {cat:'criteria',f:"Mori: Livability",b:"Safety, healthcare, working environment, and cost of living."},
+  {cat:'criteria',f:"Mori: Accessibility",b:"Transportation systems and international connectivity."},
+  {cat:'criteria',f:"EIU: Institutional Effectiveness",b:"Government effectiveness, laws, and taxation."},
+  {cat:'criteria',f:"EIU: Financial Maturity",b:"Strength of financial institutions and markets."},
+  {cat:'criteria',f:"EIU: Physical Capital",b:"Infrastructure, transportation, and telecommunications."},
+  {cat:'criteria',f:"EIU: Social & Cultural Character",b:"Human rights, diversity, openness, and cultural vibrancy."},
+  {cat:'criteria',f:"EIU: Global Appeal",b:"International flights, universities, conferences, and global companies."},
+  ...sdgs.map((s,i)=>({cat:'sdg',f:`SDG ${i+1}`,b:`${s[0]} — ${s[1]}`})),
+  {cat:'factor',f:"Social Push Factor",b:"Racism, Discrimination, Poor healthcare, Poor education"},
+  {cat:'factor',f:"Political Push Factor",b:"War, Oppressive government, Political instability"},
+  {cat:'factor',f:"Economic Push Factor",b:"Poverty, Unemployment, Low wages"},
+  {cat:'factor',f:"Environmental Push Factor",b:"Natural disasters, Pollution, Drought, Epidemics"},
+  {cat:'factor',f:"Social Pull Factor",b:"Better education, Better healthcare, Safety, Equality"},
+  {cat:'factor',f:"Political Pull Factor",b:"Peace, Human rights, Stable government"},
+  {cat:'factor',f:"Economic Pull Factor",b:"High salaries, Better jobs, Economic opportunities"},
+  {cat:'factor',f:"Environmental Pull Factor",b:"Clean environment, Stable climate, Safer surroundings"},
+  {cat:'concept',f:"Realist Perspective",b:"Nation's interests and sovereignty come first. Global citizenship has only a limited role. Powerful nations might use it to influence weaker countries. Conflicts between states are unavoidable."},
+  {cat:'concept',f:"Liberal Perspective",b:"Countries can cooperate peacefully. Supports international law, human rights, global organizations. Promotes peace, fairness, and shared responsibility."},
+  {cat:'concept',f:"Cosmopolitan Perspective",b:"People are citizens of the world first. Humanity is more important than nationality. Encourages global democracy and cross-border participation. Accepts diversity."},
+  {cat:'concept',f:"Falk: Global Reformers",b:"Work for global change and reforms."},
+  {cat:'concept',f:"Falk: Elite Global Business People",b:"Operate businesses internationally."},
+  {cat:'concept',f:"Falk: Global Environmental Managers",b:"Focus on environmental protection."},
+  {cat:'concept',f:"Falk: Politically Conscious Regionalists",b:"Support regional cooperation and political awareness."},
+  {cat:'concept',f:"Falk: Trans-national Activists",b:"Fight for causes across countries."},
+  {cat:'concept',f:"3 Pillars of Sustainability",b:"1. Environmental — protect natural resources\n2. Social — promote equality, health, education\n3. Economic — support jobs, income, growth"},
+  {cat:'concept',f:"4 Concepts of Food Security",b:"1. Availability — food must be present\n2. Access — people can obtain food\n3. Utilization — proper nutrition use\n4. Stability — consistent supply"},
+  {cat:'concept',f:"7 Characteristics of a Global Citizen",b:"1. Aware of the wider world\n2. Recognize all as equals\n3. Respect diversity\n4. Stand against injustice\n5. Live sustainably\n6. Understand interconnectedness\n7. Work for peace"},
+  {cat:'concept',f:"5 Big Demographic Trends",b:"1. Increasing Older Population\n2. Shift to Non-Communicable Diseases\n3. Emerging Economies Aging Fast\n4. Rising Old-Age Dependency Ratio\n5. Demographic Dividend"},
+  {cat:'concept',f:"Destiny vs Choice (Demography)",b:"Population changes are not fixed or permanent. Human decisions, government policies, disasters, migration, and economic conditions all shape demography."},
+];
 
-MORI MEMORIAL FOUNDATION CRITERIA: Economy, Research and Development, Cultural Interaction, Livability, Environment, Accessibility.
+// ===================== STATE =====================
+let selectedTypes=new Set(['mc','tf','fib','match']);
+let quizPool=[],qIdx=0,qScore=0,cCount=0,wCount=0;
+let matchSel=null,matchCrt=0,matchTot=0;
+let fcFilter='all',fcIdx=0;
+let knownSet=new Set(),reviewSet=new Set();
 
-ECONOMIST INTELLIGENCE UNIT CRITERIA: Economic Strength, Human Capital, Institutional Effectiveness, Financial Maturity, Global Appeal, Physical Capital, Environment and Natural Hazards, Social and Cultural Character.
-
-IMPORTANT CHARACTERISTICS OF GLOBAL CITIES:
-- Advanced Producer Services Production Node (banking, finance, law, insurance, technology).
-- Economic Giants — high GDP.
-- International Gateway — airports, seaports, trade.
-- Political and Cultural Hub — politics, education, fashion, arts, entertainment, culture.
-- Ranking based on economy, infrastructure, political influence, culture, research, quality of life.
-
-GLOBAL DEMOGRAPHY
-Demography: Study of population changes through birth, death, migration, aging. Helps governments plan healthcare, jobs, education, future development.
-Destiny vs Choice: Population changes are not fixed; shaped by human decisions, government policies, disasters, migration, economic conditions.
-Erratic Mortality: Sudden increases in death caused by disease outbreaks, wars, famines, natural disasters.
-
-FIVE BIG DEMOGRAPHIC TRENDS:
-1. Increasing Older Population — elderly increasing, children decreasing.
-2. Shift to Non-Communicable Diseases — heart disease, cancer, depression more common than infectious diseases.
-3. Emerging Economies Aging Faster — developing countries aging quickly before becoming economically stable.
-4. Rising Old-Age Dependency Ratio — Japan, Germany, Italy, Spain have fewer workers supporting more elderly.
-5. Demographic Dividend — more working-age people than dependents boosts economic growth; decreases as elderly population grows.
-
-GLOBAL MIGRATION
-Global Migration: Movement of people from one place to another permanently or temporarily.
-Types: Internal Migration (within same country, e.g., Manila to Davao), International Migration (country to country).
-Two Forms: Immigration (entering another country permanently), Emigration (leaving one's country).
-
-PUSH FACTORS (negative conditions forcing people to leave):
-- Social: Racism, Discrimination, Poor healthcare, Poor education.
-- Political: War, Oppressive government, Political instability.
-- Economic: Poverty, Unemployment, Low wages.
-- Environmental: Natural disasters, Pollution, Drought, Epidemics.
-
-PULL FACTORS (positive conditions attracting people):
-- Social: Better education, Better healthcare, Safety, Equality.
-- Political: Peace, Human rights, Stable government.
-- Economic: High salaries, Better jobs, Economic opportunities.
-- Environmental: Clean environment, Stable climate, Safer surroundings.
-
-Transnational Migration: Migrants maintain connections with both home and host country through family, work, culture, communication.
-Research in Migration helps: identify causes, create policies, understand migrant experiences, predict trends, correct misconceptions.
-
-GLOBAL FOOD SECURITY
-Food Security: People always have access to enough safe and nutritious food for healthy living.
-Stability: Food consistently available even during disasters/crises.
-Sustainability: Food systems protect the environment and future resources.
-
-3 PILLARS OF SUSTAINABILITY:
-1. Environmental Pillar — protecting natural resources and environment.
-2. Social Pillar — promoting equality, health, education, quality of life.
-3. Economic Pillar — supporting jobs, income, economic growth.
-
-THE 17 SDGs (UN, target 2030):
-1. No Poverty, 2. Zero Hunger, 3. Good Health and Well-Being, 4. Quality Education,
-5. Gender Equality, 6. Clean Water and Sanitation, 7. Affordable and Clean Energy,
-8. Decent Work and Economic Growth, 9. Industry, Innovation, and Infrastructure,
-10. Reduced Inequalities, 11. Sustainable Cities and Communities,
-12. Responsible Consumption and Production, 13. Climate Action,
-14. Life Below Water, 15. Life on Land, 16. Peace, Justice, and Strong Institutions,
-17. Partnerships for the Goals.
-
-Concepts of Food Security depend on: Availability, Access, Proper utilization, Stability.
-Problems: Climate change, Poverty, Conflict, Population growth, Natural disasters.
-
-GLOBAL CITIZENSHIP
-Global Citizenship: Seeing yourself as part of the whole world, not only one country. All people deserve equal treatment. NOT a legal status — it is a mindset and way of living.
-Global Citizen: Cares about people, peace, human rights, global issues.
-Cosmopolitanism: Belief that all humans belong to one global community with equal rights and responsibilities.
-
-PERSPECTIVES ON GLOBAL CITIZENSHIP:
-1. Realist — Focuses on nation-state interests, power, security. Sovereignty first. Limited role for global citizenship. Powerful nations may use it to influence weaker ones. Example: "My country's interest comes first."
-2. Liberal — Countries cooperate peacefully. Supports international law, human rights, global organizations. Cooperation solves global problems.
-3. Cosmopolitan — Citizens of the world first. Global democracy. Diversity accepted. "Humanity is more important than nationality."
-
-Global Civil Society: Organizations working globally to protect people and environment. Organize campaigns, raise awareness, lobby governments, protest injustice, mobilize people, encourage activism.
-
-TYPES OF GLOBAL CITIZENS (Falk, 1994):
-- Global reformers, Elite global business people, Global environmental managers, Politically conscious regionalists, Trans-national activists.
-
-Consumer Activism: Boycott companies that harm environment, exploit workers, practice injustice.
-Ethical Consumerism: Buying eco-friendly products, supporting ethical companies, avoiding harmful products.
-GLOBAL CITIZEN (organization): Encourages action on global issues. Belief: global problems need global solutions; citizens must pressure leaders.
-
-CHARACTERISTICS OF A GLOBAL CITIZEN:
-Be aware of the wider world, Recognize all humans as equals, Respect and value diversity, Stand against injustice, Live sustainably, Understand interconnectedness, Work for peace and a better world.
-`;
-
-// ─── SYSTEM PROMPT ────────────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `You are a Game Master (GM) running an interactive text-based RPG study session. The student's reviewer notes are the LORE of this game. You MUST strictly use ONLY the information in the lore below to generate questions and feedback. Never bring in outside information.
-
-GAME RULES:
-- Ask ONE question at a time. Wait for the student's answer before proceeding.
-- Mix question types: multiple-choice (A/B/C/D), fill-in-the-blank, true/false, and occasional "Boss Battle" (open-ended essay questions for complex concepts).
-- After the student answers, evaluate it and respond with:
-  1. Whether it is CORRECT or WRONG (be clear).
-  2. A brief explanation or feedback strictly from the notes.
-  3. Their updated stats recap (HP and EXP) — use these exact tokens so the UI can parse them: [HP:XX] [EXP:XX] [LEVEL:X]
-  4. Then immediately ask the NEXT question.
-- If CORRECT: award +20 EXP. Hype them up with RPG energy!
-- If WRONG: deduct -15 HP. Be encouraging and give a hint/explanation from the notes.
-- Keep a fun RPG tone — use words like "Adventurer", "Scholar", "Quest", "Attack", "Boss Battle", etc.
-- Never give the answer before the student responds.
-- For multiple-choice, always list options clearly.
-- Boss Battles are open-ended questions; be fair and generous in grading if the key concepts are present.
-
-When the student sends "Start", greet them with the system-online message and ask the FIRST question immediately. Do NOT wait.
-
-Always include [HP:XX] [EXP:XX] [LEVEL:X] tokens at the end of every response after the first greeting (which has no stats yet). The XX values come from the student's current stats which will be provided in each message.
-
-THE LORE (STUDY NOTES):
-${LORE}`;
-
-// ─── UI HELPERS ───────────────────────────────────────────────────────────────
-function updateStats() {
-  document.getElementById('levelNum').textContent = level;
-  document.getElementById('hpVal').textContent = `${hp} / ${MAX_HP}`;
-  document.getElementById('expVal').textContent = `${exp} / 100`;
-  document.getElementById('hpBar').style.width  = `${Math.max(0, (hp/MAX_HP)*100)}%`;
-  document.getElementById('expBar').style.width = `${(exp/100)*100}%`;
+// ===================== REVIEWER =====================
+function renderReviewer(){
+  const c=document.getElementById('topics-container');
+  c.innerHTML=reviewerTopics.map(t=>`
+    <div class="topic-card" id="tc-${t.id}">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-num">${t.icon}</div>
+        <div class="topic-title-text">${t.title}</div>
+        <div class="topic-chevron">▼</div>
+      </div>
+      <div class="topic-body">${t.html}</div>
+    </div>`).join('');
+}
+function toggleTopic(h){h.closest('.topic-card').classList.toggle('open');}
+function handleSearch(v){
+  const q=v.trim().toLowerCase();
+  const cards=document.querySelectorAll('.topic-card');
+  let vis=0;
+  cards.forEach(card=>{
+    if(!q||card.textContent.toLowerCase().includes(q)){card.classList.remove('hidden-by-search');if(q)card.classList.add('open');vis++;}
+    else{card.classList.add('hidden-by-search');card.classList.remove('open');}
+  });
+  document.getElementById('search-count').textContent=q?`${vis} section${vis!==1?'s':''} match "${v}"`:'';
 }
 
-function addMessage(role, text, extra='') {
-  const win = document.getElementById('chatWindow');
-  const div = document.createElement('div');
-  div.className = `msg msg-${role} ${extra}`;
-  const labels = { gm:'🎮 GAME MASTER', you:'⚔️ YOU', sys:'✦ SYSTEM' };
-  div.innerHTML = `
-    <div class="msg-label">${labels[role] || role}</div>
-    <div class="msg-bubble">${text}</div>`;
-  win.appendChild(div);
-  win.scrollTop = win.scrollHeight;
+// ===================== QUIZ =====================
+function shuffleArr(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function toggleType(btn){
+  const t=btn.dataset.type;
+  if(selectedTypes.has(t)&&selectedTypes.size>1){selectedTypes.delete(t);btn.classList.remove('selected');}
+  else if(!selectedTypes.has(t)){selectedTypes.add(t);btn.classList.add('selected');}
 }
-
-function showTyping() {
-  const win = document.getElementById('chatWindow');
-  const div = document.createElement('div');
-  div.id = 'typingIndicator';
-  div.className = 'msg msg-gm';
-  div.innerHTML = `<div class="msg-label">🎮 GAME MASTER</div>
-    <div class="typing"><span></span><span></span><span></span></div>`;
-  win.appendChild(div);
-  win.scrollTop = win.scrollHeight;
+function startQuiz(){
+  let pool=allQuestions.filter(q=>selectedTypes.has(q.type));
+  if(!pool.length)return;
+  quizPool=shuffleArr(pool);qIdx=0;qScore=0;cCount=0;wCount=0;
+  document.getElementById('quiz-start-screen').style.display='none';
+  document.getElementById('quiz-active-screen').style.display='block';
+  document.getElementById('quiz-results-screen').style.display='none';
+  renderQ();
 }
-
-function removeTyping() {
-  const el = document.getElementById('typingIndicator');
-  if (el) el.remove();
+function renderQ(){
+  const tot=quizPool.length;
+  document.getElementById('quiz-progress').style.width=(qIdx/tot*100)+'%';
+  document.getElementById('quiz-counter').textContent=`Question ${qIdx+1} of ${tot}`;
+  document.getElementById('quiz-score').textContent=`Score: ${qScore}`;
+  document.getElementById('quiz-feedback').innerHTML='';
+  document.getElementById('quiz-next-btn').style.display='none';
+  const q=quizPool[qIdx],area=document.getElementById('quiz-question-area');
+  if(q.type==='mc')renderMC(q,area);
+  else if(q.type==='tf')renderTF(q,area);
+  else if(q.type==='fib')renderFIB(q,area);
+  else if(q.type==='match')renderMatch(q,area);
 }
-
-// ─── STAT PARSING ─────────────────────────────────────────────────────────────
-function parseAndApplyStats(text) {
-  // Extract [HP:XX] [EXP:XX] [LEVEL:X] if present
-  const hpMatch  = text.match(/\[HP:(\d+)\]/i);
-  const expMatch = text.match(/\[EXP:(\d+)\]/i);
-  const lvlMatch = text.match(/\[LEVEL:(\d+)\]/i);
-
-  if (hpMatch)  hp    = parseInt(hpMatch[1]);
-  if (expMatch) exp   = parseInt(expMatch[1]);
-  if (lvlMatch) level = parseInt(lvlMatch[1]);
-
-  updateStats();
-
-  // Clean tokens from display text
-  return text.replace(/\[HP:\d+\]/gi,'').replace(/\[EXP:\d+\]/gi,'').replace(/\[LEVEL:\d+\]/gi,'').trim();
+function renderMC(q,area){
+  const L=['A','B','C','D'];
+  area.innerHTML=`<div class="question-card"><div class="q-type-label">◈ Multiple Choice</div><div class="q-text">${q.q}</div><div class="options-grid">${q.opts.map((o,i)=>`<button class="option-btn" onclick="answerMC(this,${i},${q.ans})"><span class="opt-letter">${L[i]}</span>${o}</button>`).join('')}</div></div>`;
 }
-
-function flashPanel(type) {
-  const panel = document.getElementById('statBar');
-  panel.style.animation = `${type === 'hp' ? 'hpFlash' : 'expGlow'} .5s ease`;
-  setTimeout(() => panel.style.animation = '', 600);
+function answerMC(btn,chosen,correct){
+  const btns=btn.closest('.options-grid').querySelectorAll('.option-btn');
+  btns.forEach((b,i)=>{b.disabled=true;if(i===correct)b.classList.add('correct');else if(i===chosen)b.classList.add('wrong');});
+  const ok=chosen===correct;if(ok){qScore++;cCount++;}else wCount++;
+  document.getElementById('quiz-score').textContent=`Score: ${qScore}`;
+  showFb(ok,quizPool[qIdx].exp);document.getElementById('quiz-next-btn').style.display='inline-block';
 }
-
-// ─── OVERLAY ──────────────────────────────────────────────────────────────────
-function showLevelUp(newLevel) {
-  const box = document.getElementById('overlayBox');
-  box.className = 'overlay-box level-up';
-  document.getElementById('overlayTitle').textContent = `LEVEL ${newLevel}!`;
-  document.getElementById('overlaySub').textContent   = 'You have grown stronger, Scholar!';
-  document.getElementById('overlayBtn').textContent   = '▶ CONTINUE';
-  document.getElementById('overlayBtn').onclick       = () => { document.getElementById('gameOverlay').style.display='none'; };
-  document.getElementById('gameOverlay').style.display = 'flex';
+function renderTF(q,area){
+  area.innerHTML=`<div class="question-card"><div class="q-type-label">◈ True or False</div><div class="q-text">${q.q}</div><div class="tf-grid"><button class="tf-btn" onclick="answerTF(this,true,${q.ans})">✓ True</button><button class="tf-btn" onclick="answerTF(this,false,${q.ans})">✗ False</button></div></div>`;
 }
-
-function showGameOver() {
-  const box = document.getElementById('overlayBox');
-  box.className = 'overlay-box';
-  document.getElementById('overlayTitle').textContent = 'GAME OVER';
-  document.getElementById('overlaySub').textContent   = 'You have fallen... but heroes rise again!';
-  document.getElementById('overlayBtn').textContent   = '↺ TRY AGAIN';
-  document.getElementById('overlayBtn').onclick       = restartLevel;
-  document.getElementById('gameOverlay').style.display = 'flex';
+function answerTF(btn,chosen,correct){
+  const btns=btn.closest('.tf-grid').querySelectorAll('.tf-btn');btns.forEach(b=>b.disabled=true);
+  const ok=chosen===correct;
+  if(ok){qScore++;cCount++;btn.classList.add('correct');}
+  else{wCount++;btn.classList.add('wrong');btns.forEach(b=>{if((b.textContent.includes('True')&&correct)||(b.textContent.includes('False')&&!correct))b.classList.add('correct');});}
+  document.getElementById('quiz-score').textContent=`Score: ${qScore}`;
+  showFb(ok,quizPool[qIdx].exp);document.getElementById('quiz-next-btn').style.display='inline-block';
 }
-
-function restartLevel() {
-  hp = MAX_HP;
-  exp = 0;
-  updateStats();
-  document.getElementById('gameOverlay').style.display = 'none';
-  addMessage('sys', `⚡ Restarting Level ${level}... HP restored to ${MAX_HP}! The quest continues.`);
-  // Push a restart message into history
-  conversationHistory.push({ role:'user', content:`My HP dropped to 0. Please restart the level. My stats: HP:${hp}, EXP:${exp}, Level:${level}. Ask a new question.` });
-  callGM();
+function renderFIB(q,area){
+  area.innerHTML=`<div class="question-card"><div class="q-type-label">◈ Fill in the Blank</div><div class="q-text">${q.q}</div><div class="fib-wrap"><input class="fib-input" id="fib-ans" type="text" placeholder="Type your answer…" onkeydown="if(event.key==='Enter')submitFIB()"><button class="btn-primary" onclick="submitFIB()" style="padding:11px 18px;font-size:0.85rem;">Check</button></div><div class="fib-hint">Hint: ${q.hint}</div></div>`;
+  setTimeout(()=>document.getElementById('fib-ans')&&document.getElementById('fib-ans').focus(),80);
 }
-
-// ─── API CALL ─────────────────────────────────────────────────────────────────
-async function callGM() {
-  isWaiting = true;
-  document.getElementById('sendBtn').disabled = true;
-  document.getElementById('userInput').disabled = true;
-  showTyping();
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: SYSTEM_PROMPT,
-        messages: conversationHistory
-      })
-    });
-
-    const data = await response.json();
-    removeTyping();
-
-    if (!response.ok) {
-      addMessage('sys', `⚠️ API Error: ${data.error?.message || 'Unknown error'}. Please try refreshing.`);
-      isWaiting = false;
-      document.getElementById('sendBtn').disabled = false;
-      document.getElementById('userInput').disabled = false;
-      return;
+function submitFIB(){
+  const inp=document.getElementById('fib-ans');if(!inp||inp.disabled)return;
+  const q=quizPool[qIdx],ua=inp.value.trim().toLowerCase().replace(/\s+/g,' '),ca=q.ans.toLowerCase().replace(/\s+/g,' ');
+  const ok=ua===ca||(ca.includes(ua)&&ua.length>2);
+  inp.disabled=true;inp.classList.add(ok?'correct':'wrong');
+  if(ok){qScore++;cCount++;}else{wCount++;inp.value=inp.value+' → '+q.ans;}
+  document.getElementById('quiz-score').textContent=`Score: ${qScore}`;
+  showFb(ok,q.exp);document.getElementById('quiz-next-btn').style.display='inline-block';
+  const cb=inp.nextElementSibling;if(cb)cb.disabled=true;
+}
+function renderMatch(q,area){
+  matchSel=null;matchCrt=0;matchTot=q.pairs.length;
+  const pairs=shuffleArr(q.pairs),rights=shuffleArr(pairs.map(p=>p.right)),lefts=pairs.map(p=>p.left);
+  area.innerHTML=`<div class="question-card"><div class="q-type-label">◈ Matching</div><div class="q-text">${q.instruction}</div><div class="match-container"><div class="match-col"><div class="match-col-label">Column A</div>${lefts.map(l=>`<div class="match-item" data-side="left" data-val="${l}" onclick="selMatch(this)">${l}</div>`).join('')}</div><div class="match-col"><div class="match-col-label">Column B</div>${rights.map(r=>`<div class="match-item" data-side="right" data-val="${r}" onclick="selMatch(this)">${r}</div>`).join('')}</div></div></div>`;
+  area.dataset.pairs=JSON.stringify(pairs);
+}
+function selMatch(item){
+  if(item.classList.contains('matched-correct')||item.classList.contains('matched-wrong'))return;
+  if(!matchSel){if(item.dataset.side!=='left')return;matchSel=item;item.classList.add('selected');}
+  else{
+    if(item.dataset.side!=='right'){matchSel.classList.remove('selected');matchSel=null;return;}
+    const lv=matchSel.dataset.val,rv=item.dataset.val;
+    const pairs=JSON.parse(document.getElementById('quiz-question-area').dataset.pairs);
+    const ok=pairs.find(p=>p.left===lv&&p.right===rv);
+    matchSel.classList.remove('selected');
+    if(ok){
+      matchSel.classList.add('matched-correct');item.classList.add('matched-correct');matchCrt++;
+      if(matchCrt===matchTot){qScore+=matchTot;cCount+=matchTot;document.getElementById('quiz-score').textContent=`Score: ${qScore}`;showFb(true,`All ${matchTot} pairs matched correctly!`);document.getElementById('quiz-next-btn').style.display='inline-block';}
+    }else{
+      wCount++;const ms2=matchSel,it2=item;
+      ms2.classList.add('matched-wrong');it2.classList.add('matched-wrong');
+      setTimeout(()=>{ms2.classList.remove('matched-wrong');it2.classList.remove('matched-wrong');},900);
     }
-
-    const rawText = data.content?.[0]?.text || '';
-    conversationHistory.push({ role:'assistant', content: rawText });
-
-    // Detect correct/wrong for flash
-    const isCorrect = /correct|right|well done|nice|great|perfect|excellent|nailed|✅|💪|🎉/i.test(rawText);
-    const isWrong   = /wrong|incorrect|not quite|close but|❌|💔|😬/i.test(rawText);
-
-    // Check for level up before applying stats
-    const lvlBefore = level;
-    const cleanText = parseAndApplyStats(rawText);
-
-    if (isCorrect) flashPanel('exp');
-    if (isWrong)   flashPanel('hp');
-
-    const msgClass = isCorrect ? 'msg-correct' : isWrong ? 'msg-wrong' : '';
-    addMessage('gm', formatText(cleanText), msgClass);
-
-    if (level > lvlBefore) showLevelUp(level);
-    if (hp <= 0) { setTimeout(showGameOver, 600); }
-
-  } catch (err) {
-    removeTyping();
-    addMessage('sys', `⚠️ Connection error: ${err.message}`);
+    matchSel=null;
   }
+}
+function showFb(ok,exp){document.getElementById('quiz-feedback').innerHTML=`<div class="feedback-box ${ok?'correct':'wrong'}"><strong>${ok?'✓ Correct!':'✗ Incorrect'}</strong>${exp}</div>`;}
+function nextQuestion(){qIdx++;if(qIdx>=quizPool.length)showResults();else renderQ();}
+function showResults(){
+  document.getElementById('quiz-active-screen').style.display='none';
+  document.getElementById('quiz-results-screen').style.display='block';
+  const pct=Math.round((cCount/(cCount+wCount||1))*100);
+  document.getElementById('res-pct').textContent=pct+'%';
+  document.getElementById('res-correct').textContent=cCount;
+  document.getElementById('res-wrong').textContent=wCount;
+  document.getElementById('res-total').textContent=quizPool.length;
+  const r=[[90,"Outstanding! You clearly know your Contemp World! 🌏"],[75,"Great job! Just a few topics left to polish. 📚"],[60,"Good effort! Focus on SDGs and migration factors. 💪"],[0,"Keep going! Use the Reviewer mode and try again. 📖"]].find(x=>pct>=x[0]);
+  document.getElementById('res-remark').textContent=r[1];
+}
+function resetQuiz(){cCount=0;wCount=0;qScore=0;qIdx=0;document.getElementById('quiz-active-screen').style.display='none';document.getElementById('quiz-results-screen').style.display='none';document.getElementById('quiz-start-screen').style.display='block';document.getElementById('quiz-progress').style.width='0%';}
 
-  isWaiting = false;
-  document.getElementById('sendBtn').disabled = false;
-  document.getElementById('userInput').disabled = false;
-  document.getElementById('userInput').focus();
+// ===================== FLASHCARDS =====================
+const catLabels={term:'KEY TERM',criteria:'CRITERIA',sdg:'SDG',factor:'PUSH/PULL',concept:'CONCEPT'};
+function getFcCards(){
+  if(fcFilter==='all')return allFlashcards;
+  if(fcFilter==='know')return allFlashcards.filter((_,i)=>knownSet.has(i));
+  if(fcFilter==='review')return allFlashcards.filter((_,i)=>reviewSet.has(i));
+  return allFlashcards.filter(c=>c.cat===fcFilter);
+}
+function updateFcStats(){document.getElementById('fc-stat-total').textContent=allFlashcards.length;document.getElementById('fc-stat-know').textContent=knownSet.size;document.getElementById('fc-stat-review').textContent=reviewSet.size;}
+function renderFC(){
+  const cards=getFcCards();
+  const empty=document.getElementById('fc-empty'),scene=document.getElementById('fc-scene');
+  if(!cards.length){scene.style.display='none';empty.style.display='block';document.getElementById('fc-pos').textContent='0';document.getElementById('fc-total').textContent='0';document.getElementById('fc-status').innerHTML='';updateFcStats();return;}
+  scene.style.display='block';empty.style.display='none';
+  if(fcIdx>=cards.length)fcIdx=cards.length-1;if(fcIdx<0)fcIdx=0;
+  const card=cards[fcIdx],gi=allFlashcards.indexOf(card),cl=catLabels[card.cat]||'CARD';
+  document.getElementById('fc-front-text').textContent=card.f;
+  document.getElementById('fc-back-text').textContent=card.b;
+  document.getElementById('fc-cat-tag').textContent=cl;
+  document.getElementById('fc-cat-tag-back').textContent=cl;
+  document.getElementById('fc-pos').textContent=fcIdx+1;
+  document.getElementById('fc-total').textContent=cards.length;
+  document.getElementById('fc-card').classList.remove('flipped');
+  const st=document.getElementById('fc-status');
+  if(knownSet.has(gi))st.innerHTML='<span class="s-know">✓ Know It</span>';
+  else if(reviewSet.has(gi))st.innerHTML='<span class="s-review">↺ Review Again</span>';
+  else st.innerHTML='';
+  document.getElementById('fc-prev-btn').disabled=fcIdx===0;
+  document.getElementById('fc-next-btn').disabled=fcIdx===cards.length-1;
+  updateFcStats();
+}
+function flipCard(){document.getElementById('fc-card').classList.toggle('flipped');}
+function fcNav(d){fcIdx+=d;renderFC();}
+function markCard(t){
+  const cards=getFcCards();if(!cards.length)return;
+  const gi=allFlashcards.indexOf(cards[fcIdx]);
+  if(t==='know'){knownSet.add(gi);reviewSet.delete(gi);}else{reviewSet.add(gi);knownSet.delete(gi);}
+  if(fcIdx<cards.length-1)fcIdx++;renderFC();
+}
+function setFcFilter(f,btn){fcFilter=f;fcIdx=0;document.querySelectorAll('#fc-filter-btns .badge').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderFC();}
+
+// ===================== MODE SWITCHING =====================
+function switchMode(mode,btn){
+  document.querySelectorAll('.mode').forEach(m=>m.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mode-'+mode).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ─── FORMAT TEXT ──────────────────────────────────────────────────────────────
-function formatText(text) {
-  // Convert **bold**, newlines, basic markdown-ish formatting
-  return text
-    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--gold)">$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/\n/g, '<br>');
-}
-
-// ─── START GAME ───────────────────────────────────────────────────────────────
-function startGame() {
-  document.getElementById('startScreen').style.display = 'none';
-  document.getElementById('inputRow').style.display = 'flex';
-  gameStarted = true;
-  updateStats();
-
-  conversationHistory = [
-    { role:'user', content:`Start. My current stats — HP:${hp}, EXP:${exp}, Level:${level}.` }
-  ];
-  callGM();
-}
-
-// ─── SEND ANSWER ──────────────────────────────────────────────────────────────
-function sendAnswer() {
-  if (isWaiting) return;
-  const input = document.getElementById('userInput');
-  const text = input.value.trim();
-  if (!text) return;
-
-  addMessage('you', text);
-  input.value = '';
-
-  conversationHistory.push({
-    role: 'user',
-    content: `My answer: "${text}". My current stats — HP:${hp}, EXP:${exp}, Level:${level}.`
-  });
-  callGM();
-}
-
-// ─── ENTER KEY ────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('userInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') sendAnswer();
-  });
-});
+// INIT
+renderReviewer();renderFC();
 </script>
 </body>
 </html>
