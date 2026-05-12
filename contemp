@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>⚔️ Contemporary World — Study Quest</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:        #0a0a0f;
+    --panel:     #11111c;
+    --border:    #2a2a4a;
+    --accent:    #7c3aed;
+    --accent2:   #06b6d4;
+    --gold:      #f59e0b;
+    --hp-color:  #ef4444;
+    --exp-color: #22c55e;
+    --text:      #e2e8f0;
+    --muted:     #64748b;
+    --glow:      0 0 12px rgba(124,58,237,.6);
+    --glow2:     0 0 12px rgba(6,182,212,.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 12px 40px;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,58,237,.12) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(42,42,74,.18) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(42,42,74,.18) 40px);
+  }
+
+  /* ── TITLE ── */
+  header {
+    text-align: center;
+    margin-bottom: 18px;
+    animation: fadeDown .6s ease both;
+  }
+  header h1 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(10px, 3vw, 16px);
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(245,158,11,.7), 0 0 40px rgba(245,158,11,.3);
+    letter-spacing: 2px;
+    line-height: 1.6;
+  }
+  header p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .game-wrapper {
+    width: 100%;
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* ── STAT BAR ── */
+  .stat-bar {
+    background: var(--panel);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    animation: fadeDown .7s .1s ease both;
+  }
+  .stat-item { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 100px; }
+  .stat-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  .bar-track {
+    height: 14px;
+    background: rgba(255,255,255,.05);
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width .4s ease;
+    position: relative;
+  }
+  .bar-fill::after {
+    content: '';
+    position: absolute;
+    inset: 2px 4px auto auto;
+    width: 3px; height: calc(100% - 4px);
+    background: rgba(255,255,255,.35);
+    border-radius: 2px;
+  }
+  .hp-fill  { background: linear-gradient(90deg, #b91c1c, var(--hp-color)); box-shadow: 0 0 8px rgba(239,68,68,.5); }
+  .exp-fill { background: linear-gradient(90deg, #15803d, var(--exp-color)); box-shadow: 0 0 8px rgba(34,197,94,.5); }
+  .stat-value {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--text);
+    margin-top: 2px;
+  }
+
+  .level-badge {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    min-width: 70px;
+  }
+  .level-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 22px;
+    color: var(--gold);
+    text-shadow: 0 0 14px rgba(245,158,11,.7);
+    line-height: 1;
+  }
+
+  /* ── CHAT WINDOW ── */
+  .chat-window {
+    background: var(--panel);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    min-height: 340px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+    animation: fadeIn .8s .2s ease both;
+  }
+  .chat-window::-webkit-scrollbar { width: 6px; }
+  .chat-window::-webkit-scrollbar-track { background: transparent; }
+  .chat-window::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .msg {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    animation: slideUp .3s ease both;
+  }
+  .msg-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+  .msg-gm  .msg-label { color: var(--accent2); }
+  .msg-you .msg-label { color: var(--gold); }
+  .msg-sys .msg-label { color: var(--accent); }
+
+  .msg-bubble {
+    padding: 10px 14px;
+    border-radius: 4px;
+    line-height: 1.5;
+    font-size: 18px;
+    max-width: 95%;
+  }
+  .msg-gm  .msg-bubble { background: rgba(6,182,212,.08);  border-left: 3px solid var(--accent2); color: var(--text); }
+  .msg-you .msg-bubble { background: rgba(245,158,11,.08); border-left: 3px solid var(--gold);    color: var(--text); align-self: flex-end; }
+  .msg-sys .msg-bubble { background: rgba(124,58,237,.10); border-left: 3px solid var(--accent);  color: var(--text); font-style: italic; }
+
+  .msg-correct .msg-bubble { border-left-color: var(--exp-color); background: rgba(34,197,94,.08); }
+  .msg-wrong   .msg-bubble { border-left-color: var(--hp-color);  background: rgba(239,68,68,.08); }
+
+  /* ── INPUT ROW ── */
+  .input-row {
+    display: flex;
+    gap: 10px;
+    animation: fadeIn .9s .3s ease both;
+  }
+  #userInput {
+    flex: 1;
+    background: var(--panel);
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  #userInput:focus {
+    border-color: var(--accent2);
+    box-shadow: var(--glow2);
+  }
+  #userInput::placeholder { color: var(--muted); }
+
+  #sendBtn {
+    background: var(--accent);
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    padding: 0 18px;
+    cursor: pointer;
+    transition: background .2s, box-shadow .2s, transform .1s;
+    box-shadow: var(--glow);
+    letter-spacing: 1px;
+  }
+  #sendBtn:hover  { background: #6d28d9; box-shadow: 0 0 18px rgba(124,58,237,.8); }
+  #sendBtn:active { transform: scale(.96); }
+  #sendBtn:disabled { background: var(--border); box-shadow: none; cursor: not-allowed; }
+
+  /* ── START SCREEN ── */
+  #startScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 40px 20px;
+    text-align: center;
+    animation: fadeIn .8s ease both;
+  }
+  #startScreen p {
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.7;
+    max-width: 500px;
+  }
+  #startBtn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    padding: 16px 36px;
+    background: transparent;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: background .2s, box-shadow .2s, transform .1s;
+    text-shadow: 0 0 10px rgba(245,158,11,.5);
+    box-shadow: 0 0 14px rgba(245,158,11,.3);
+    animation: pulse 2s ease infinite;
+  }
+  #startBtn:hover { background: rgba(245,158,11,.08); box-shadow: 0 0 24px rgba(245,158,11,.6); }
+  #startBtn:active { transform: scale(.96); }
+
+  /* ── LOADING DOTS ── */
+  .typing {
+    display: inline-flex; gap: 5px; align-items: center; padding: 8px 14px;
+    background: rgba(6,182,212,.08); border-left: 3px solid var(--accent2); border-radius: 4px;
+  }
+  .typing span {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--accent2);
+    animation: bounce 1s ease infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: .15s; }
+  .typing span:nth-child(3) { animation-delay: .3s; }
+
+  /* ── GAME OVER / LEVEL UP ── */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.85);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+    animation: fadeIn .3s ease both;
+  }
+  .overlay-box {
+    background: var(--panel);
+    border: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 40px 50px;
+    text-align: center;
+    animation: zoomIn .4s ease both;
+  }
+  .overlay-box.level-up { border-color: var(--gold); }
+  .overlay-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+  .overlay-box        .overlay-title { color: var(--hp-color); text-shadow: 0 0 16px rgba(239,68,68,.7); }
+  .overlay-box.level-up .overlay-title { color: var(--gold);    text-shadow: 0 0 16px rgba(245,158,11,.7); }
+  .overlay-sub { color: var(--muted); margin-bottom: 24px; font-size: 16px; }
+  .overlay-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    padding: 12px 28px;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    transition: background .2s;
+    letter-spacing: 1px;
+  }
+  .overlay-box        .overlay-btn { color: var(--hp-color); }
+  .overlay-box.level-up .overlay-btn { color: var(--gold); }
+  .overlay-btn:hover { background: rgba(255,255,255,.06); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown  { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:none; } }
+  @keyframes fadeIn    { from { opacity:0; } to { opacity:1; } }
+  @keyframes slideUp   { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+  @keyframes zoomIn    { from { opacity:0; transform:scale(.85); } to { opacity:1; transform:scale(1); } }
+  @keyframes bounce    { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
+  @keyframes pulse     { 0%,100% { box-shadow:0 0 14px rgba(245,158,11,.3); } 50% { box-shadow:0 0 28px rgba(245,158,11,.7); } }
+  @keyframes hpFlash   { 0%,100% { background: var(--panel); } 50% { background: rgba(239,68,68,.2); } }
+  @keyframes expGlow   { 0%,100% { background: var(--panel); } 50% { background: rgba(34,197,94,.15); } }
+</style>
+</head>
+<body>
+
+<div class="game-wrapper">
+
+  <!-- TITLE -->
+  <header>
+    <h1>⚔️ CONTEMPORARY WORLD<br>STUDY QUEST</h1>
+    <p>▸ Powered by AI Game Master ◂</p>
+  </header>
+
+  <!-- STAT BAR -->
+  <div class="stat-bar" id="statBar">
+    <div class="level-badge">
+      <div class="stat-label">LEVEL</div>
+      <div class="level-num" id="levelNum">1</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">❤ HP</div>
+      <div class="bar-track"><div class="bar-fill hp-fill" id="hpBar" style="width:100%"></div></div>
+      <div class="stat-value" id="hpVal">100 / 100</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">✦ EXP</div>
+      <div class="bar-track"><div class="bar-fill exp-fill" id="expBar" style="width:0%"></div></div>
+      <div class="stat-value" id="expVal">0 / 100</div>
+    </div>
+  </div>
+
+  <!-- CHAT WINDOW -->
+  <div class="chat-window" id="chatWindow">
+    <div id="startScreen">
+      <div style="font-family:'Press Start 2P',monospace;font-size:13px;color:var(--accent2);text-shadow:var(--glow2)">
+        🎮 SYSTEM ONLINE
+      </div>
+      <p>Welcome, Scholar! Your notes on <strong style="color:var(--gold)">Contemporary World</strong> are loaded as game lore.<br>
+         Your journey covers Global Cities, Demography, Migration, Food Security, and Global Citizenship.<br><br>
+         Are you ready to face the Game Master?</p>
+      <button id="startBtn" onclick="startGame()">▶ PRESS START</button>
+    </div>
+  </div>
+
+  <!-- INPUT ROW -->
+  <div class="input-row" id="inputRow" style="display:none">
+    <input id="userInput" type="text" placeholder="Type your answer here..." autocomplete="off" />
+    <button id="sendBtn" onclick="sendAnswer()">SEND ▶</button>
+  </div>
+
+</div>
+
+<!-- OVERLAYS -->
+<div class="overlay" id="gameOverlay" style="display:none">
+  <div class="overlay-box" id="overlayBox">
+    <div class="overlay-title" id="overlayTitle">GAME OVER</div>
+    <div class="overlay-sub" id="overlaySub">You have fallen... but heroes rise again.</div>
+    <button class="overlay-btn" id="overlayBtn" onclick="restartLevel()">↺ TRY AGAIN</button>
+  </div>
+</div>
+
+<script>
+// ─── GAME STATE ───────────────────────────────────────────────────────────────
+const MAX_HP = 100;
+let hp = MAX_HP, exp = 0, level = 1;
+let gameStarted = false;
+let isWaiting = false;           // waiting for GM response
+let conversationHistory = [];    // full message history for the API
+
+// ─── LORE (Notes) ─────────────────────────────────────────────────────────────
+const LORE = `
+CONTEMPORARY WORLD — REVIEWER NOTES
+
+GLOBAL CITY
+Global City: A city that plays an important role in the world economy and globalization. Center of business, finance, migration, culture, information, and political activities. Connects countries through trade, technology, transportation, and communication. Examples: New York City, London, Tokyo.
+Glocal: Combines globalization and localization. Adapting global products/services to fit local culture/needs. Example: International fast-food chains changing menus to match local tastes.
+
+A.T. KEARNEY'S FIVE DIMENSIONS:
+1. Business Activity — company headquarters, capital markets, international conferences, ports/airports.
+2. Information Exchange — internet presence, international news bureaus, broadband access, media accessibility.
+3. Human Capital — foreign-born population, universities, international schools, skilled workers.
+4. Cultural Experience — museums, sports events, tourism, food and entertainment.
+5. Political Engagement — embassies, consulates, international organizations, political conferences.
+
+MORI MEMORIAL FOUNDATION CRITERIA: Economy, Research and Development, Cultural Interaction, Livability, Environment, Accessibility.
+
+ECONOMIST INTELLIGENCE UNIT CRITERIA: Economic Strength, Human Capital, Institutional Effectiveness, Financial Maturity, Global Appeal, Physical Capital, Environment and Natural Hazards, Social and Cultural Character.
+
+IMPORTANT CHARACTERISTICS OF GLOBAL CITIES:
+- Advanced Producer Services Production Node (banking, finance, law, insurance, technology).
+- Economic Giants — high GDP.
+- International Gateway — airports, seaports, trade.
+- Political and Cultural Hub — politics, education, fashion, arts, entertainment, culture.
+- Ranking based on economy, infrastructure, political influence, culture, research, quality of life.
+
+GLOBAL DEMOGRAPHY
+Demography: Study of population changes through birth, death, migration, aging. Helps governments plan healthcare, jobs, education, future development.
+Destiny vs Choice: Population changes are not fixed; shaped by human decisions, government policies, disasters, migration, economic conditions.
+Erratic Mortality: Sudden increases in death caused by disease outbreaks, wars, famines, natural disasters.
+
+FIVE BIG DEMOGRAPHIC TRENDS:
+1. Increasing Older Population — elderly increasing, children decreasing.
+2. Shift to Non-Communicable Diseases — heart disease, cancer, depression more common than infectious diseases.
+3. Emerging Economies Aging Faster — developing countries aging quickly before becoming economically stable.
+4. Rising Old-Age Dependency Ratio — Japan, Germany, Italy, Spain have fewer workers supporting more elderly.
+5. Demographic Dividend — more working-age people than dependents boosts economic growth; decreases as elderly population grows.
+
+GLOBAL MIGRATION
+Global Migration: Movement of people from one place to another permanently or temporarily.
+Types: Internal Migration (within same country, e.g., Manila to Davao), International Migration (country to country).
+Two Forms: Immigration (entering another country permanently), Emigration (leaving one's country).
+
+PUSH FACTORS (negative conditions forcing people to leave):
+- Social: Racism, Discrimination, Poor healthcare, Poor education.
+- Political: War, Oppressive government, Political instability.
+- Economic: Poverty, Unemployment, Low wages.
+- Environmental: Natural disasters, Pollution, Drought, Epidemics.
+
+PULL FACTORS (positive conditions attracting people):
+- Social: Better education, Better healthcare, Safety, Equality.
+- Political: Peace, Human rights, Stable government.
+- Economic: High salaries, Better jobs, Economic opportunities.
+- Environmental: Clean environment, Stable climate, Safer surroundings.
+
+Transnational Migration: Migrants maintain connections with both home and host country through family, work, culture, communication.
+Research in Migration helps: identify causes, create policies, understand migrant experiences, predict trends, correct misconceptions.
+
+GLOBAL FOOD SECURITY
+Food Security: People always have access to enough safe and nutritious food for healthy living.
+Stability: Food consistently available even during disasters/crises.
+Sustainability: Food systems protect the environment and future resources.
+
+3 PILLARS OF SUSTAINABILITY:
+1. Environmental Pillar — protecting natural resources and environment.
+2. Social Pillar — promoting equality, health, education, quality of life.
+3. Economic Pillar — supporting jobs, income, economic growth.
+
+THE 17 SDGs (UN, target 2030):
+1. No Poverty, 2. Zero Hunger, 3. Good Health and Well-Being, 4. Quality Education,
+5. Gender Equality, 6. Clean Water and Sanitation, 7. Affordable and Clean Energy,
+8. Decent Work and Economic Growth, 9. Industry, Innovation, and Infrastructure,
+10. Reduced Inequalities, 11. Sustainable Cities and Communities,
+12. Responsible Consumption and Production, 13. Climate Action,
+14. Life Below Water, 15. Life on Land, 16. Peace, Justice, and Strong Institutions,
+17. Partnerships for the Goals.
+
+Concepts of Food Security depend on: Availability, Access, Proper utilization, Stability.
+Problems: Climate change, Poverty, Conflict, Population growth, Natural disasters.
+
+GLOBAL CITIZENSHIP
+Global Citizenship: Seeing yourself as part of the whole world, not only one country. All people deserve equal treatment. NOT a legal status — it is a mindset and way of living.
+Global Citizen: Cares about people, peace, human rights, global issues.
+Cosmopolitanism: Belief that all humans belong to one global community with equal rights and responsibilities.
+
+PERSPECTIVES ON GLOBAL CITIZENSHIP:
+1. Realist — Focuses on nation-state interests, power, security. Sovereignty first. Limited role for global citizenship. Powerful nations may use it to influence weaker ones. Example: "My country's interest comes first."
+2. Liberal — Countries cooperate peacefully. Supports international law, human rights, global organizations. Cooperation solves global problems.
+3. Cosmopolitan — Citizens of the world first. Global democracy. Diversity accepted. "Humanity is more important than nationality."
+
+Global Civil Society: Organizations working globally to protect people and environment. Organize campaigns, raise awareness, lobby governments, protest injustice, mobilize people, encourage activism.
+
+TYPES OF GLOBAL CITIZENS (Falk, 1994):
+- Global reformers, Elite global business people, Global environmental managers, Politically conscious regionalists, Trans-national activists.
+
+Consumer Activism: Boycott companies that harm environment, exploit workers, practice injustice.
+Ethical Consumerism: Buying eco-friendly products, supporting ethical companies, avoiding harmful products.
+GLOBAL CITIZEN (organization): Encourages action on global issues. Belief: global problems need global solutions; citizens must pressure leaders.
+
+CHARACTERISTICS OF A GLOBAL CITIZEN:
+Be aware of the wider world, Recognize all humans as equals, Respect and value diversity, Stand against injustice, Live sustainably, Understand interconnectedness, Work for peace and a better world.
+`;
+
+// ─── SYSTEM PROMPT ────────────────────────────────────────────────────────────
+const SYSTEM_PROMPT = `You are a Game Master (GM) running an interactive text-based RPG study session. The student's reviewer notes are the LORE of this game. You MUST strictly use ONLY the information in the lore below to generate questions and feedback. Never bring in outside information.
+
+GAME RULES:
+- Ask ONE question at a time. Wait for the student's answer before proceeding.
+- Mix question types: multiple-choice (A/B/C/D), fill-in-the-blank, true/false, and occasional "Boss Battle" (open-ended essay questions for complex concepts).
+- After the student answers, evaluate it and respond with:
+  1. Whether it is CORRECT or WRONG (be clear).
+  2. A brief explanation or feedback strictly from the notes.
+  3. Their updated stats recap (HP and EXP) — use these exact tokens so the UI can parse them: [HP:XX] [EXP:XX] [LEVEL:X]
+  4. Then immediately ask the NEXT question.
+- If CORRECT: award +20 EXP. Hype them up with RPG energy!
+- If WRONG: deduct -15 HP. Be encouraging and give a hint/explanation from the notes.
+- Keep a fun RPG tone — use words like "Adventurer", "Scholar", "Quest", "Attack", "Boss Battle", etc.
+- Never give the answer before the student responds.
+- For multiple-choice, always list options clearly.
+- Boss Battles are open-ended questions; be fair and generous in grading if the key concepts are present.
+
+When the student sends "Start", greet them with the system-online message and ask the FIRST question immediately. Do NOT wait.
+
+Always include [HP:XX] [EXP:XX] [LEVEL:X] tokens at the end of every response after the first greeting (which has no stats yet). The XX values come from the student's current stats which will be provided in each message.
+
+THE LORE (STUDY NOTES):
+${LORE}`;
+
+// ─── UI HELPERS ───────────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('levelNum').textContent = level;
+  document.getElementById('hpVal').textContent = `${hp} / ${MAX_HP}`;
+  document.getElementById('expVal').textContent = `${exp} / 100`;
+  document.getElementById('hpBar').style.width  = `${Math.max(0, (hp/MAX_HP)*100)}%`;
+  document.getElementById('expBar').style.width = `${(exp/100)*100}%`;
+}
+
+function addMessage(role, text, extra='') {
+  const win = document.getElementById('chatWindow');
+  const div = document.createElement('div');
+  div.className = `msg msg-${role} ${extra}`;
+  const labels = { gm:'🎮 GAME MASTER', you:'⚔️ YOU', sys:'✦ SYSTEM' };
+  div.innerHTML = `
+    <div class="msg-label">${labels[role] || role}</div>
+    <div class="msg-bubble">${text}</div>`;
+  win.appendChild(div);
+  win.scrollTop = win.scrollHeight;
+}
+
+function showTyping() {
+  const win = document.getElementById('chatWindow');
+  const div = document.createElement('div');
+  div.id = 'typingIndicator';
+  div.className = 'msg msg-gm';
+  div.innerHTML = `<div class="msg-label">🎮 GAME MASTER</div>
+    <div class="typing"><span></span><span></span><span></span></div>`;
+  win.appendChild(div);
+  win.scrollTop = win.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+// ─── STAT PARSING ─────────────────────────────────────────────────────────────
+function parseAndApplyStats(text) {
+  // Extract [HP:XX] [EXP:XX] [LEVEL:X] if present
+  const hpMatch  = text.match(/\[HP:(\d+)\]/i);
+  const expMatch = text.match(/\[EXP:(\d+)\]/i);
+  const lvlMatch = text.match(/\[LEVEL:(\d+)\]/i);
+
+  if (hpMatch)  hp    = parseInt(hpMatch[1]);
+  if (expMatch) exp   = parseInt(expMatch[1]);
+  if (lvlMatch) level = parseInt(lvlMatch[1]);
+
+  updateStats();
+
+  // Clean tokens from display text
+  return text.replace(/\[HP:\d+\]/gi,'').replace(/\[EXP:\d+\]/gi,'').replace(/\[LEVEL:\d+\]/gi,'').trim();
+}
+
+function flashPanel(type) {
+  const panel = document.getElementById('statBar');
+  panel.style.animation = `${type === 'hp' ? 'hpFlash' : 'expGlow'} .5s ease`;
+  setTimeout(() => panel.style.animation = '', 600);
+}
+
+// ─── OVERLAY ──────────────────────────────────────────────────────────────────
+function showLevelUp(newLevel) {
+  const box = document.getElementById('overlayBox');
+  box.className = 'overlay-box level-up';
+  document.getElementById('overlayTitle').textContent = `LEVEL ${newLevel}!`;
+  document.getElementById('overlaySub').textContent   = 'You have grown stronger, Scholar!';
+  document.getElementById('overlayBtn').textContent   = '▶ CONTINUE';
+  document.getElementById('overlayBtn').onclick       = () => { document.getElementById('gameOverlay').style.display='none'; };
+  document.getElementById('gameOverlay').style.display = 'flex';
+}
+
+function showGameOver() {
+  const box = document.getElementById('overlayBox');
+  box.className = 'overlay-box';
+  document.getElementById('overlayTitle').textContent = 'GAME OVER';
+  document.getElementById('overlaySub').textContent   = 'You have fallen... but heroes rise again!';
+  document.getElementById('overlayBtn').textContent   = '↺ TRY AGAIN';
+  document.getElementById('overlayBtn').onclick       = restartLevel;
+  document.getElementById('gameOverlay').style.display = 'flex';
+}
+
+function restartLevel() {
+  hp = MAX_HP;
+  exp = 0;
+  updateStats();
+  document.getElementById('gameOverlay').style.display = 'none';
+  addMessage('sys', `⚡ Restarting Level ${level}... HP restored to ${MAX_HP}! The quest continues.`);
+  // Push a restart message into history
+  conversationHistory.push({ role:'user', content:`My HP dropped to 0. Please restart the level. My stats: HP:${hp}, EXP:${exp}, Level:${level}. Ask a new question.` });
+  callGM();
+}
+
+// ─── API CALL ─────────────────────────────────────────────────────────────────
+async function callGM() {
+  isWaiting = true;
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('userInput').disabled = true;
+  showTyping();
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: conversationHistory
+      })
+    });
+
+    const data = await response.json();
+    removeTyping();
+
+    if (!response.ok) {
+      addMessage('sys', `⚠️ API Error: ${data.error?.message || 'Unknown error'}. Please try refreshing.`);
+      isWaiting = false;
+      document.getElementById('sendBtn').disabled = false;
+      document.getElementById('userInput').disabled = false;
+      return;
+    }
+
+    const rawText = data.content?.[0]?.text || '';
+    conversationHistory.push({ role:'assistant', content: rawText });
+
+    // Detect correct/wrong for flash
+    const isCorrect = /correct|right|well done|nice|great|perfect|excellent|nailed|✅|💪|🎉/i.test(rawText);
+    const isWrong   = /wrong|incorrect|not quite|close but|❌|💔|😬/i.test(rawText);
+
+    // Check for level up before applying stats
+    const lvlBefore = level;
+    const cleanText = parseAndApplyStats(rawText);
+
+    if (isCorrect) flashPanel('exp');
+    if (isWrong)   flashPanel('hp');
+
+    const msgClass = isCorrect ? 'msg-correct' : isWrong ? 'msg-wrong' : '';
+    addMessage('gm', formatText(cleanText), msgClass);
+
+    if (level > lvlBefore) showLevelUp(level);
+    if (hp <= 0) { setTimeout(showGameOver, 600); }
+
+  } catch (err) {
+    removeTyping();
+    addMessage('sys', `⚠️ Connection error: ${err.message}`);
+  }
+
+  isWaiting = false;
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('userInput').disabled = false;
+  document.getElementById('userInput').focus();
+}
+
+// ─── FORMAT TEXT ──────────────────────────────────────────────────────────────
+function formatText(text) {
+  // Convert **bold**, newlines, basic markdown-ish formatting
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--gold)">$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/\n/g, '<br>');
+}
+
+// ─── START GAME ───────────────────────────────────────────────────────────────
+function startGame() {
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('inputRow').style.display = 'flex';
+  gameStarted = true;
+  updateStats();
+
+  conversationHistory = [
+    { role:'user', content:`Start. My current stats — HP:${hp}, EXP:${exp}, Level:${level}.` }
+  ];
+  callGM();
+}
+
+// ─── SEND ANSWER ──────────────────────────────────────────────────────────────
+function sendAnswer() {
+  if (isWaiting) return;
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  addMessage('you', text);
+  input.value = '';
+
+  conversationHistory.push({
+    role: 'user',
+    content: `My answer: "${text}". My current stats — HP:${hp}, EXP:${exp}, Level:${level}.`
+  });
+  callGM();
+}
+
+// ─── ENTER KEY ────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('userInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendAnswer();
+  });
+});
+</script>
+</body>
+</html>
