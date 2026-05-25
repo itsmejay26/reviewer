@@ -3,1838 +3,685 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RPH Long Quiz — Interactive Study App</title>
+<title>Contemporary World — Midterm Reviewer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0d0b08;
-    --surface: #13110d;
-    --card: #1b1814;
-    --card2: #211f19;
-    --border: #2e2b22;
-    --border2: #3d3a2e;
-    --gold: #c9a044;
-    --gold-light: #e8c870;
-    --gold-dim: #7a6128;
-    --text: #e2d5bb;
-    --text-muted: #8a7f6a;
-    --text-dim: #5a5245;
-    --red: #b5391f;
-    --red-bg: #2a1209;
-    --green: #2e8b57;
-    --green-bg: #0d2318;
-    --blue: #3a7fb5;
-    --blue-bg: #0d1f2e;
-    --radius: 8px;
-    --shadow: 0 4px 24px rgba(0,0,0,0.6);
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root{
+  --bg:#0c0d10;
+  --s1:#13141a;
+  --s2:#1a1c25;
+  --s3:#22253300;
+  --bdr:#252833;
+  --bdr2:#2e3244;
+  --txt:#eae6df;
+  --muted:#686c85;
+  --acc:#c8965a;
+  --acc2:rgba(200,150,90,0.13);
+  --grn:#52c07a;
+  --red:#e06b6b;
+  --org:#e0924b;
+  --blu:#5b93c8;
+  --gry:#7a8399;
+  --rad:16px;
+  --fn:'Source Serif 4',Georgia,serif;
+  --fnd:'Playfair Display',Georgia,serif;
+}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+body{background:var(--bg);color:var(--txt);font-family:var(--fn);min-height:100vh;
+  background-image:
+    radial-gradient(ellipse 70% 40% at 20% -10%,rgba(200,150,90,0.06) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 30% at 80% 110%,rgba(91,147,200,0.04) 0%,transparent 60%);
+}
 
-  /* --- NOISE OVERLAY --- */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.5;
-  }
+/* ─── TAB NAV ─── */
+.tab-nav{
+  display:flex;align-items:center;gap:0;
+  border-bottom:1px solid var(--bdr);
+  background:var(--s1);
+  position:sticky;top:0;z-index:100;
+  padding:0 20px;
+}
+.tab-nav-title{
+  font-family:var(--fnd);font-size:0.95rem;color:var(--acc);
+  padding:14px 0;margin-right:28px;white-space:nowrap;letter-spacing:0.01em;
+}
+.tab-btn{
+  padding:14px 18px;font-family:var(--fn);font-size:0.8rem;font-weight:600;
+  color:var(--muted);border:none;background:none;cursor:pointer;
+  border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;
+  letter-spacing:0.04em;text-transform:uppercase;
+}
+.tab-btn:hover{color:var(--txt);}
+.tab-btn.active{color:var(--acc);border-bottom-color:var(--acc);}
 
-  /* --- NAV --- */
-  nav {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    height: 64px;
-    box-shadow: 0 2px 20px rgba(0,0,0,0.8);
-  }
+/* ─── PANELS ─── */
+.panel{display:none;padding:28px 20px 80px;}
+.panel.active{display:block;}
+.wrap{max-width:680px;margin:0 auto;}
 
-  .nav-title {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 1.05rem;
-    font-weight: bold;
-    color: var(--gold);
-    letter-spacing: 0.04em;
-    margin-right: auto;
-    white-space: nowrap;
-    text-shadow: 0 0 20px rgba(201,160,68,0.3);
-  }
-  .nav-title span { color: var(--text-muted); font-weight: normal; font-size: 0.8rem; display: block; letter-spacing: 0.06em; }
+/* ─── STATS ─── */
+.stats-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.sp{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:99px;
+  font-size:0.73rem;font-weight:600;
+  background:var(--s1);border:1px solid var(--bdr);color:var(--muted);
+}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.da{background:var(--muted);}
+.dm{background:var(--grn);}
+.dr{background:var(--org);}
+.dp{background:var(--acc);}
 
-  .nav-btn {
-    background: none;
-    border: 1px solid var(--border2);
-    color: var(--text-muted);
-    padding: 8px 16px;
-    border-radius: var(--radius);
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.85rem;
-    letter-spacing: 0.03em;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .nav-btn:hover { border-color: var(--gold-dim); color: var(--text); }
-  .nav-btn.active { background: var(--gold); color: #0d0b08; border-color: var(--gold); font-weight: bold; }
+/* Progress */
+.pb-wrap{height:3px;background:var(--s2);border-radius:99px;overflow:hidden;margin:10px 0 4px;}
+.pb-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--org));border-radius:99px;transition:width .5s ease;}
+.pb-lbl{font-size:0.7rem;color:var(--muted);}
 
-  /* --- MAIN CONTENT --- */
-  .mode { display: none; padding: 32px 20px 80px; max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
-  .mode.active { display: block; }
+/* ─── CONTROLS ─── */
+.ctrls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;}
+.tog-btn{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 14px;border-radius:99px;font-size:0.75rem;font-weight:600;
+  border:1px solid var(--bdr);background:var(--s1);color:var(--muted);
+  cursor:pointer;transition:all .2s;font-family:var(--fn);
+}
+.tog-btn:hover{border-color:var(--acc);color:var(--txt);}
+.tog-btn.on{background:var(--acc2);border-color:var(--acc);color:var(--acc);}
+.trk{width:28px;height:16px;background:var(--bdr);border-radius:99px;position:relative;transition:background .2s;flex-shrink:0;}
+.trk.on{background:var(--acc);}
+.trk::after{content:'';position:absolute;width:12px;height:12px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left .2s;}
+.trk.on::after{left:14px;}
+.rst-btn{
+  padding:7px 14px;border-radius:99px;font-size:0.75rem;font-weight:600;
+  border:1px solid var(--bdr);background:var(--s1);color:var(--muted);
+  cursor:pointer;transition:all .2s;font-family:var(--fn);
+}
+.rst-btn:hover{border-color:var(--red);color:var(--red);}
 
-  /* ===== REVIEWER MODE ===== */
-  .reviewer-header {
-    text-align: center;
-    margin-bottom: 32px;
-  }
-  .reviewer-header h1 {
-    font-family: Georgia, serif;
-    font-size: 2rem;
-    color: var(--gold-light);
-    text-shadow: 0 0 30px rgba(232,200,112,0.2);
-    margin-bottom: 8px;
-  }
-  .reviewer-header p { color: var(--text-muted); font-size: 0.9rem; }
+/* ─── TOPIC FILTER ─── */
+.tf{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0;}
+.tf-btn{
+  padding:4px 11px;border-radius:7px;font-size:0.71rem;font-weight:600;
+  border:1px solid var(--bdr);background:transparent;color:var(--muted);
+  cursor:pointer;transition:all .18s;font-family:var(--fn);
+}
+.tf-btn:hover{border-color:var(--acc);color:var(--txt);}
+.tf-btn.sel{background:var(--acc2);border-color:var(--acc);color:var(--acc);}
 
-  .search-wrap {
-    position: relative;
-    margin-bottom: 24px;
-  }
-  .search-wrap input {
-    width: 100%;
-    background: var(--card);
-    border: 1px solid var(--border2);
-    color: var(--text);
-    padding: 12px 16px 12px 44px;
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.95rem;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .search-wrap input:focus { border-color: var(--gold-dim); }
-  .search-wrap input::placeholder { color: var(--text-dim); }
-  .search-icon {
-    position: absolute;
-    left: 14px; top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-dim);
-    font-size: 1rem;
-  }
-  #search-count { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; margin-left: 4px; }
+/* ─── CARD ─── */
+.card{
+  background:var(--s1);border:1px solid var(--bdr);
+  border-radius:var(--rad);padding:30px 28px 24px;
+  display:flex;flex-direction:column;gap:20px;
+  box-shadow:0 8px 40px rgba(0,0,0,0.35);
+  animation:cUp .3s ease;
+}
+@keyframes cUp{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-  .topic-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-bottom: 12px;
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
-  .topic-card:hover { border-color: var(--border2); }
+.card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.badge{
+  padding:3px 9px;border-radius:7px;
+  font-size:0.66rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;
+}
+.bd-topic{ background:var(--s2);color:var(--muted);border:1px solid var(--bdr2); }
+.bd-rev{   background:rgba(224,146,75,0.12);color:var(--org);border:1px solid rgba(224,146,75,0.28); }
+.bd-e1{    background:rgba(82,192,122,0.1); color:var(--grn);border:1px solid rgba(82,192,122,0.25); }
+.t-rev  {background:rgba(200,150,90,.13);  color:#d4a96a;}
+.t-mal  {background:rgba(82,192,122,.13);  color:#7ddfa0;}
+.t-con  {background:rgba(91,147,200,.13);  color:#8db8e0;}
+.t-tax  {background:rgba(193,99,99,.13);   color:#e0a0a0;}
+.t-jud  {background:rgba(148,100,200,.13); color:#c9a8f0;}
 
-  .topic-header {
-    padding: 16px 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    user-select: none;
-    transition: background 0.15s;
-  }
-  .topic-header:hover { background: var(--card2); }
+.q-text{
+  font-family:var(--fn);
+  font-style:normal;
+  font-size:1.18rem;
+  line-height:1.65;
+  color:var(--txt);
+}
 
-  .topic-num {
-    width: 28px; height: 28px;
-    background: var(--gold-dim);
-    color: var(--gold-light);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.75rem;
-    font-weight: bold;
-    flex-shrink: 0;
-  }
-  .topic-title-text {
-    font-family: Georgia, serif;
-    font-size: 1rem;
-    color: var(--text);
-    flex: 1;
-  }
-  .topic-chevron {
-    color: var(--text-dim);
-    font-size: 0.8rem;
-    transition: transform 0.25s;
-  }
-  .topic-card.open .topic-chevron { transform: rotate(180deg); }
+/* answer */
+.ans-area{overflow:hidden;transition:max-height .4s ease,opacity .35s ease;max-height:0;opacity:0;}
+.ans-area.open{max-height:800px;opacity:1;}
+.ans-divider{height:1px;background:var(--bdr);margin-bottom:14px;}
+.ans-label{font-size:0.67rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--acc);margin-bottom:10px;}
+.ans-text{font-size:1.05rem;font-weight:600;color:var(--txt);line-height:1.55;font-family:var(--fn);}
 
-  .topic-body {
-    display: none;
-    padding: 0 20px 20px;
-    border-top: 1px solid var(--border);
-  }
-  .topic-card.open .topic-body { display: block; }
+/* ─── BUTTONS ─── */
+.btn-chk{
+  width:100%;padding:14px;border-radius:12px;
+  font-size:0.93rem;font-weight:700;font-family:var(--fn);letter-spacing:0.02em;
+  border:1.5px solid var(--acc);background:var(--acc2);color:var(--acc);
+  cursor:pointer;transition:all .2s;
+}
+.btn-chk:hover{background:var(--acc);color:#0c0d10;}
 
-  .topic-body h3 {
-    font-family: Georgia, serif;
-    font-size: 0.9rem;
-    color: var(--gold);
-    margin: 16px 0 8px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    font-size: 0.78rem;
-  }
-  .topic-body p, .topic-body li {
-    font-size: 0.9rem;
-    color: var(--text);
-    line-height: 1.7;
-  }
-  .topic-body ul { padding-left: 20px; margin: 6px 0; }
-  .topic-body li { margin-bottom: 4px; }
+.rate-row{display:none;gap:8px;margin-top:12px;}
+.rate-row.show{display:flex;}
+.rb{
+  flex:1;padding:11px 6px;border-radius:10px;
+  font-size:0.76rem;font-weight:700;font-family:var(--fn);
+  cursor:pointer;border:1.5px solid transparent;
+  transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.rb span{font-size:1rem;}
+.rb-e{background:rgba(82,192,122,.1); border-color:rgba(82,192,122,.28);color:var(--grn);}
+.rb-e:hover{background:rgba(82,192,122,.22);border-color:var(--grn);}
+.rb-h{background:rgba(224,146,75,.1); border-color:rgba(224,146,75,.28);color:var(--org);}
+.rb-h:hover{background:rgba(224,146,75,.22);border-color:var(--org);}
+.rb-m{background:rgba(224,107,107,.1);border-color:rgba(224,107,107,.28);color:var(--red);}
+.rb-m:hover{background:rgba(224,107,107,.22);border-color:var(--red);}
+.rb-o{background:rgba(122,131,153,.1);border-color:rgba(122,131,153,.28);color:var(--gry);}
+.rb-o:hover{background:rgba(122,131,153,.22);border-color:var(--gry);}
 
-  .highlight-date {
-    background: rgba(201,160,68,0.15);
-    color: var(--gold-light);
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-size: 0.85em;
-    font-family: 'Courier New', monospace;
-    border: 1px solid rgba(201,160,68,0.2);
-  }
-  .highlight-person {
-    color: #a8d8ea;
-    font-style: italic;
-  }
-  .highlight-term {
-    color: #f0c080;
-    font-weight: bold;
-  }
+/* done */
+.done-scr{
+  display:none;text-align:center;padding:60px 24px;
+  background:var(--s1);border:1px solid var(--bdr);border-radius:var(--rad);
+}
+.done-scr h2{font-family:var(--fnd);font-size:2rem;color:var(--acc);margin-bottom:10px;}
+.done-scr p{color:var(--muted);font-size:0.9rem;line-height:1.7;}
 
-  .ref-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 12px;
-    margin-top: 8px;
-  }
-  .ref-item {
-    background: var(--card2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 10px 12px;
-    font-size: 0.85rem;
-  }
-  .ref-item strong { color: var(--gold); display: block; margin-bottom: 3px; font-size: 0.8rem; }
-  .ref-item span { color: var(--text); }
+.sess-info{text-align:center;font-size:0.7rem;color:var(--muted);margin-top:10px;}
 
-  .badge {
-    display: inline-block;
-    background: var(--card2);
-    border: 1px solid var(--border2);
-    color: var(--text-muted);
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 0.78rem;
-    margin: 3px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .badge:hover, .badge.active { background: var(--gold-dim); color: var(--gold-light); border-color: var(--gold-dim); }
+.legend{margin-top:18px;display:flex;gap:14px;flex-wrap:wrap;}
+.lg{display:flex;align-items:center;gap:5px;font-size:0.68rem;color:var(--muted);}
+.lg-d{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 
-  .hidden-by-search { display: none !important; }
+/* ═══════════════════════════════════════
+   Q&A REVIEWER PANEL
+═══════════════════════════════════════ */
+.qa-section{margin-bottom:44px;}
+.qa-section-title{
+  font-family:var(--fnd);font-size:1.3rem;color:var(--acc);
+  margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--bdr);
+}
+.qa-item{
+  background:var(--s1);border:1px solid var(--bdr);border-radius:12px;
+  margin-bottom:10px;overflow:hidden;transition:border-color .2s;
+}
+.qa-item:hover{border-color:var(--bdr2);}
+.qa-q{
+  padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+}
+.qa-q-text{
+  font-family:var(--fn);
+  font-style:normal;
+  font-size:0.98rem;
+  line-height:1.55;
+  color:var(--txt);
+  flex:1;
+}
+.qa-q-num{
+  font-size:0.7rem;font-weight:700;color:var(--muted);white-space:nowrap;padding-top:3px;flex-shrink:0;
+}
+.qa-chevron{color:var(--muted);font-size:0.75rem;flex-shrink:0;transition:transform .25s;padding-top:2px;}
+.qa-item.open .qa-chevron{transform:rotate(180deg);}
+.qa-a{
+  overflow:hidden;max-height:0;transition:max-height .35s ease,padding .3s ease;
+  padding:0 20px;
+}
+.qa-item.open .qa-a{max-height:400px;padding:0 20px 16px;}
+.qa-a-label{font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--acc);margin-bottom:8px;}
+.qa-a-text{font-size:0.97rem;font-weight:600;color:var(--txt);line-height:1.5;font-family:var(--fn);}
+.qa-divider{height:1px;background:var(--bdr);margin:0 20px 12px;}
 
-  /* ===== QUIZ MODE ===== */
-  .quiz-start {
-    text-align: center;
-    padding: 60px 20px;
-  }
-  .quiz-start h2 {
-    font-family: Georgia, serif;
-    font-size: 2rem;
-    color: var(--gold-light);
-    margin-bottom: 12px;
-  }
-  .quiz-start p { color: var(--text-muted); margin-bottom: 32px; }
+.qa-search{
+  width:100%;padding:11px 16px;background:var(--s1);border:1px solid var(--bdr);
+  border-radius:10px;font-size:0.9rem;font-family:var(--fn);color:var(--txt);
+  margin-bottom:20px;transition:border-color .2s;
+}
+.qa-search:focus{outline:none;border-color:var(--acc);}
+.qa-search::placeholder{color:var(--muted);}
 
-  .quiz-settings {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 32px;
-  }
-  .quiz-type-btn {
-    background: var(--card);
-    border: 1px solid var(--border2);
-    color: var(--text-muted);
-    padding: 10px 18px;
-    border-radius: var(--radius);
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.85rem;
-    transition: all 0.2s;
-  }
-  .quiz-type-btn.selected { background: var(--gold-dim); color: var(--gold-light); border-color: var(--gold); }
+.qa-reveal-all{
+  padding:8px 18px;border-radius:99px;font-size:0.74rem;font-weight:700;font-family:var(--fn);
+  border:1px solid var(--bdr);background:var(--s1);color:var(--muted);
+  cursor:pointer;margin-bottom:22px;margin-right:8px;transition:all .2s;
+}
+.qa-reveal-all:hover{border-color:var(--acc);color:var(--acc);}
+.qa-collapse-all{
+  padding:8px 18px;border-radius:99px;font-size:0.74rem;font-weight:700;font-family:var(--fn);
+  border:1px solid var(--bdr);background:var(--s1);color:var(--muted);
+  cursor:pointer;margin-bottom:22px;transition:all .2s;
+}
+.qa-collapse-all:hover{border-color:var(--red);color:var(--red);}
 
-  .btn-primary {
-    background: var(--gold);
-    color: #0d0b08;
-    border: none;
-    padding: 14px 40px;
-    border-radius: var(--radius);
-    font-family: Georgia, serif;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    letter-spacing: 0.04em;
-    transition: all 0.2s;
-    box-shadow: 0 4px 20px rgba(201,160,68,0.3);
-  }
-  .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(201,160,68,0.4); }
-  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-  .quiz-progress-bar {
-    background: var(--border);
-    border-radius: 4px;
-    height: 4px;
-    margin-bottom: 24px;
-    overflow: hidden;
-  }
-  .quiz-progress-fill {
-    background: var(--gold);
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.4s ease;
-  }
-
-  .quiz-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    font-size: 0.82rem;
-    color: var(--text-muted);
-  }
-  .quiz-meta .score-badge {
-    background: var(--card2);
-    border: 1px solid var(--border2);
-    padding: 4px 14px;
-    border-radius: 20px;
-    color: var(--gold);
-    font-family: 'Courier New', monospace;
-  }
-
-  .question-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px;
-    margin-bottom: 20px;
-    animation: slideIn 0.3s ease;
-  }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .q-type-label {
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--gold-dim);
-    margin-bottom: 12px;
-    font-family: 'Courier New', monospace;
-  }
-  .q-text {
-    font-family: Georgia, serif;
-    font-size: 1.1rem;
-    color: var(--text);
-    line-height: 1.6;
-    margin-bottom: 24px;
-  }
-
-  /* MC Options */
-  .options-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .option-btn {
-    background: var(--card2);
-    border: 1px solid var(--border2);
-    color: var(--text);
-    padding: 12px 18px;
-    border-radius: var(--radius);
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.9rem;
-    text-align: left;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .option-btn:hover:not(:disabled) { border-color: var(--gold-dim); background: #251f14; }
-  .option-btn .opt-letter {
-    width: 24px; height: 24px;
-    border: 1px solid var(--border2);
-    border-radius: 4px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    flex-shrink: 0;
-    font-family: 'Courier New', monospace;
-  }
-  .option-btn.correct { background: var(--green-bg); border-color: var(--green); color: #7ddc9e; }
-  .option-btn.wrong { background: var(--red-bg); border-color: var(--red); color: #f08070; }
-  .option-btn.correct .opt-letter { border-color: var(--green); color: var(--green); }
-  .option-btn.wrong .opt-letter { border-color: var(--red); color: var(--red); }
-  .option-btn:disabled { cursor: default; }
-
-  /* TF Buttons */
-  .tf-grid { display: flex; gap: 16px; }
-  .tf-btn {
-    flex: 1;
-    padding: 16px;
-    background: var(--card2);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius);
-    color: var(--text);
-    font-family: Georgia, serif;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.15s;
-    letter-spacing: 0.05em;
-  }
-  .tf-btn:hover:not(:disabled) { border-color: var(--gold-dim); background: #251f14; }
-  .tf-btn.correct { background: var(--green-bg); border-color: var(--green); color: #7ddc9e; }
-  .tf-btn.wrong { background: var(--red-bg); border-color: var(--red); color: #f08070; }
-  .tf-btn:disabled { cursor: default; }
-
-  /* FIB */
-  .fib-wrap { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
-  .fib-input {
-    flex: 1; min-width: 180px;
-    background: var(--card2);
-    border: 1px solid var(--border2);
-    color: var(--text);
-    padding: 12px 16px;
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.95rem;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .fib-input:focus { border-color: var(--gold-dim); }
-  .fib-input.correct { border-color: var(--green); background: var(--green-bg); color: #7ddc9e; }
-  .fib-input.wrong { border-color: var(--red); background: var(--red-bg); color: #f08070; }
-  .fib-hint { font-size: 0.8rem; color: var(--text-dim); margin-top: 8px; }
-
-  /* Matching */
-  .match-container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .match-col { display: flex; flex-direction: column; gap: 8px; }
-  .match-col-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 4px; font-family: 'Courier New', monospace; }
-  .match-item {
-    background: var(--card2);
-    border: 1px solid var(--border2);
-    padding: 10px 14px;
-    border-radius: var(--radius);
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.15s;
-    min-height: 44px;
-    display: flex; align-items: center;
-  }
-  .match-item:hover:not(.disabled) { border-color: var(--gold-dim); }
-  .match-item.selected { border-color: var(--gold); background: rgba(201,160,68,0.1); }
-  .match-item.matched-correct { border-color: var(--green); background: var(--green-bg); color: #7ddc9e; cursor: default; }
-  .match-item.matched-wrong { border-color: var(--red); background: var(--red-bg); color: #f08070; cursor: default; }
-  .match-item.disabled { cursor: default; opacity: 0.6; }
-
-  /* Feedback */
-  .feedback-box {
-    margin-top: 16px;
-    padding: 14px 18px;
-    border-radius: var(--radius);
-    font-size: 0.88rem;
-    line-height: 1.6;
-    animation: fadeIn 0.2s ease;
-  }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  .feedback-box.correct { background: var(--green-bg); border: 1px solid var(--green); color: #7ddc9e; }
-  .feedback-box.wrong { background: var(--red-bg); border: 1px solid var(--red); color: #f08070; }
-  .feedback-box strong { display: block; margin-bottom: 4px; font-family: Georgia, serif; font-size: 0.95rem; }
-
-  .quiz-nav { display: flex; justify-content: flex-end; margin-top: 16px; }
-  .btn-next {
-    background: var(--gold);
-    color: #0d0b08;
-    border: none;
-    padding: 11px 28px;
-    border-radius: var(--radius);
-    font-family: Georgia, serif;
-    font-size: 0.9rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-next:hover { background: var(--gold-light); }
-
-  /* Results */
-  .results-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 40px;
-    text-align: center;
-  }
-  .results-card h2 { font-family: Georgia, serif; font-size: 1.8rem; color: var(--gold-light); margin-bottom: 8px; }
-  .results-card p { color: var(--text-muted); margin-bottom: 24px; }
-  .score-ring {
-    width: 120px; height: 120px;
-    border-radius: 50%;
-    border: 4px solid var(--gold);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    margin: 0 auto 24px;
-    background: rgba(201,160,68,0.05);
-  }
-  .score-ring .big-num { font-family: Georgia, serif; font-size: 2rem; color: var(--gold-light); font-weight: bold; }
-  .score-ring .small-label { font-size: 0.72rem; color: var(--text-muted); letter-spacing: 0.06em; }
-  .results-breakdown { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
-  .breakdown-item { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 12px 20px; font-size: 0.85rem; }
-  .breakdown-item strong { color: var(--gold); display: block; font-size: 1.2rem; }
-  .breakdown-item span { color: var(--text-muted); }
-
-  /* ===== FLASHCARD MODE ===== */
-  .fc-header { text-align: center; margin-bottom: 28px; }
-  .fc-header h2 { font-family: Georgia, serif; font-size: 1.8rem; color: var(--gold-light); margin-bottom: 8px; }
-  .fc-header p { color: var(--text-muted); font-size: 0.88rem; }
-
-  .fc-filters { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 24px; }
-
-  .fc-stats {
-    display: flex; gap: 16px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap;
-  }
-  .fc-stat {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 8px 20px;
-    font-size: 0.82rem;
-    text-align: center;
-  }
-  .fc-stat strong { display: block; font-size: 1.1rem; font-family: 'Courier New', monospace; }
-  .fc-stat.stat-know strong { color: var(--green); }
-  .fc-stat.stat-review strong { color: #e07050; }
-  .fc-stat.stat-total strong { color: var(--gold); }
-
-  /* Flip Card */
-  .fc-scene {
-    perspective: 1000px;
-    max-width: 580px;
-    margin: 0 auto 24px;
-    height: 280px;
-  }
-  .fc-card {
-    width: 100%; height: 100%;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
-    cursor: pointer;
-  }
-  .fc-card.flipped { transform: rotateY(180deg); }
-
-  .fc-face {
-    position: absolute;
-    inset: 0;
-    background: var(--card);
-    border: 1px solid var(--border2);
-    border-radius: 12px;
-    backface-visibility: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 32px;
-    text-align: center;
-    box-shadow: var(--shadow);
-  }
-  .fc-face.back { transform: rotateY(180deg); background: var(--card2); border-color: var(--gold-dim); }
-
-  .fc-category-tag {
-    position: absolute;
-    top: 14px; left: 14px;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-dim);
-    font-family: 'Courier New', monospace;
-  }
-  .fc-face-label {
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--text-dim);
-    margin-bottom: 16px;
-    font-family: 'Courier New', monospace;
-  }
-  .fc-face .front-text {
-    font-family: Georgia, serif;
-    font-size: 1.3rem;
-    color: var(--text);
-    line-height: 1.4;
-  }
-  .fc-face .back-text {
-    font-size: 0.92rem;
-    color: var(--text);
-    line-height: 1.6;
-  }
-  .fc-face.back .fc-face-label { color: var(--gold-dim); }
-  .fc-flip-hint {
-    position: absolute;
-    bottom: 14px;
-    font-size: 0.72rem;
-    color: var(--text-dim);
-    font-family: 'Courier New', monospace;
-  }
-
-  .fc-counter { text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; }
-  .fc-counter strong { color: var(--gold); }
-
-  .fc-controls {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-  .fc-nav-btn {
-    background: var(--card);
-    border: 1px solid var(--border2);
-    color: var(--text-muted);
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    font-size: 1.1rem;
-    transition: all 0.15s;
-  }
-  .fc-nav-btn:hover:not(:disabled) { border-color: var(--gold-dim); color: var(--text); }
-  .fc-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-  .btn-know {
-    background: var(--green-bg);
-    border: 1px solid var(--green);
-    color: #7ddc9e;
-    padding: 11px 24px;
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.88rem;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-know:hover { background: #1a4030; }
-  .btn-review {
-    background: var(--red-bg);
-    border: 1px solid var(--red);
-    color: #f08070;
-    padding: 11px 24px;
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.88rem;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-review:hover { background: #3a1a0a; }
-
-  .fc-card-status {
-    text-align: center;
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-    height: 20px;
-  }
-  .fc-card-status .status-know { color: #7ddc9e; }
-  .fc-card-status .status-review { color: #f08070; }
-
-  .fc-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); font-family: Georgia, serif; font-size: 1rem; }
-
-  /* Responsive */
-  @media (max-width: 600px) {
-    nav { height: auto; padding: 12px 14px; flex-wrap: wrap; gap: 8px; }
-    .nav-title { margin-right: 0; width: 100%; }
-    .nav-btn { padding: 7px 12px; font-size: 0.78rem; }
-    .mode { padding: 20px 14px 60px; }
-    .match-container { grid-template-columns: 1fr; }
-    .fc-scene { height: 260px; }
-    .question-card { padding: 20px; }
-    .fc-face { padding: 20px; }
-    .fc-face .front-text { font-size: 1.1rem; }
-    .results-card { padding: 24px; }
-  }
-
-  /* Divider */
-  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
-  .section-label {
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-dim);
-    font-family: 'Courier New', monospace;
-    margin-bottom: 12px;
-  }
+@media(max-width:500px){
+  .card{padding:22px 16px 20px;}
+  .q-text{font-size:1rem;}
+  .rb{font-size:0.69rem;padding:10px 4px;}
+  .panel{padding:20px 14px 60px;}
+}
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="nav-title">
-    ⚜ RPH Long Quiz
-    <span>Interactive Study App</span>
-  </div>
-  <button class="nav-btn active" onclick="switchMode('reviewer')">📖 Reviewer</button>
-  <button class="nav-btn" onclick="switchMode('quiz')">🧠 Quiz</button>
-  <button class="nav-btn" onclick="switchMode('flashcard')">🗂️ Flashcards</button>
+<!-- TAB NAV -->
+<nav class="tab-nav">
+  <div class="tab-nav-title">🇵🇭 Midterm</div>
+  <button class="tab-btn active" onclick="switchTab('trainer')">Memory Trainer</button>
+  <button class="tab-btn" onclick="switchTab('qa')">Q&amp;A Reviewer</button>
 </nav>
 
-<!-- ===== REVIEWER MODE ===== -->
-<div id="mode-reviewer" class="mode active">
-  <div class="reviewer-header">
-    <h1>RPH Long Quiz Reviewer</h1>
-    <p>All 11 topics — tap any section to expand. Use search to find keywords instantly.</p>
+<!-- ══════════════════════════════════════════
+     PANEL 1: MEMORY TRAINER
+══════════════════════════════════════════ -->
+<div class="panel active" id="panel-trainer">
+<div class="wrap">
+
+  <div class="stats-row">
+    <div class="sp"><div class="dot da"></div><span id="s-tot">0 total</span></div>
+    <div class="sp"><div class="dot dm"></div><span id="s-mas">0 mastered</span></div>
+    <div class="sp"><div class="dot dr"></div><span id="s-rev">0 to review</span></div>
+    <div class="sp"><div class="dot dp"></div><span id="s-pend">0 pending</span></div>
   </div>
 
-  <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="reviewer-search" placeholder="Search topics, dates, names, terms…" oninput="handleSearch(this.value)">
-  </div>
-  <div id="search-count"></div>
+  <div class="pb-wrap"><div class="pb-fill" id="pb-fill" style="width:0%"></div></div>
+  <div class="pb-lbl" id="pb-lbl">0% mastered</div>
 
-  <div id="topics-container"></div>
+  <div class="ctrls">
+    <button class="tog-btn" id="rnd-btn" onclick="toggleRandom()">
+      <div class="trk" id="rnd-trk"></div>Random Order
+    </button>
+    <button class="rst-btn" onclick="doReset()">↺ Reset</button>
+  </div>
+
+  <div class="tf">
+    <button class="tf-btn sel" data-top="all"         onclick="setFilter(this)">All Topics</button>
+    <button class="tf-btn"     data-top="Revolution"  onclick="setFilter(this)">Revolution</button>
+    <button class="tf-btn"     data-top="Malolos"     onclick="setFilter(this)">Malolos</button>
+    <button class="tf-btn"     data-top="Constitutions" onclick="setFilter(this)">Constitutions</button>
+    <button class="tf-btn"     data-top="Taxation"    onclick="setFilter(this)">Taxation</button>
+    <button class="tf-btn"     data-top="Judiciary"   onclick="setFilter(this)">Judiciary</button>
+  </div>
+
+  <!-- Main card -->
+  <div class="card" id="main-card">
+    <div class="card-meta" id="card-meta"></div>
+    <div class="q-text" id="q-text">Loading…</div>
+    <div class="ans-area" id="ans-area">
+      <div class="ans-divider"></div>
+      <div class="ans-label">Answer</div>
+      <div class="ans-text" id="ans-text"></div>
+    </div>
+    <div>
+      <button class="btn-chk" id="btn-chk" onclick="checkAnswer()">Reveal Answer</button>
+      <div class="rate-row" id="rate-row">
+        <button class="rb rb-e" onclick="rate('easy')"><span>✓</span>Easy</button>
+        <button class="rb rb-h" onclick="rate('hard')"><span>~</span>Hard</button>
+        <button class="rb rb-m" onclick="rate('missed')"><span>✗</span>Missed</button>
+        <button class="rb rb-o" onclick="rate('other')"><span>?</span>Other</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="done-scr" id="done-scr">
+    <h2>🎉 All Mastered!</h2>
+    <p>You answered every item correctly twice in a row.<br>You're ready for the midterm — great work!</p>
+    <br>
+    <button class="rst-btn" style="margin:0 auto;display:block;" onclick="doReset()">Start Over</button>
+  </div>
+
+  <div class="sess-info" id="sess-info"></div>
+
+  <div class="legend">
+    <div class="lg"><div class="lg-d" style="background:var(--grn)"></div>Easy × 2 in a row = mastered</div>
+    <div class="lg"><div class="lg-d" style="background:var(--org)"></div>Hard / Other = return in 7–10 Qs</div>
+    <div class="lg"><div class="lg-d" style="background:var(--red)"></div>Missed = return in 4–7 Qs</div>
+  </div>
+</div>
 </div>
 
-<!-- ===== QUIZ MODE ===== -->
-<div id="mode-quiz" class="mode">
-  <div id="quiz-start-screen" class="quiz-start">
-    <h2>🧠 Quiz Mode</h2>
-    <p>Test yourself on all 11 topics with varied question types.</p>
+<!-- ══════════════════════════════════════════
+     PANEL 2: Q&A REVIEWER
+══════════════════════════════════════════ -->
+<div class="panel" id="panel-qa">
+<div class="wrap">
 
-    <div style="margin-bottom:16px;">
-      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px;">Select question types to include:</p>
-      <div class="quiz-settings">
-        <button class="quiz-type-btn selected" data-type="mc" onclick="toggleType(this)">Multiple Choice</button>
-        <button class="quiz-type-btn selected" data-type="tf" onclick="toggleType(this)">True / False</button>
-        <button class="quiz-type-btn selected" data-type="fib" onclick="toggleType(this)">Fill in the Blank</button>
-        <button class="quiz-type-btn selected" data-type="match" onclick="toggleType(this)">Matching</button>
-      </div>
-    </div>
+  <input class="qa-search" type="text" placeholder="Search questions or answers…" oninput="qaSearch(this.value)" id="qa-search-input">
+  <button class="qa-reveal-all" onclick="qaRevealAll()">Reveal All Answers</button>
+  <button class="qa-collapse-all" onclick="qaCollapseAll()">Collapse All</button>
 
-    <button class="btn-primary" onclick="startQuiz()">Begin Quiz →</button>
-  </div>
-
-  <div id="quiz-active-screen" style="display:none;">
-    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress"></div></div>
-    <div class="quiz-meta">
-      <span id="quiz-counter">Question 1 of 40</span>
-      <span class="score-badge" id="quiz-score">Score: 0</span>
-    </div>
-    <div id="quiz-question-area"></div>
-    <div id="quiz-feedback"></div>
-    <div class="quiz-nav">
-      <button class="btn-next" id="quiz-next-btn" onclick="nextQuestion()" style="display:none;">Next →</button>
-    </div>
-  </div>
-
-  <div id="quiz-results-screen" style="display:none;">
-    <div class="results-card">
-      <h2>Quiz Complete!</h2>
-      <p>Here's how you did on the RPH reviewer.</p>
-      <div class="score-ring">
-        <div class="big-num" id="res-pct">0%</div>
-        <div class="small-label">SCORE</div>
-      </div>
-      <div class="results-breakdown">
-        <div class="breakdown-item"><strong id="res-correct">0</strong><span>Correct</span></div>
-        <div class="breakdown-item"><strong id="res-wrong">0</strong><span>Wrong</span></div>
-        <div class="breakdown-item"><strong id="res-total">0</strong><span>Total</span></div>
-      </div>
-      <div id="res-remark" style="color:var(--text-muted);margin-bottom:28px;font-size:0.9rem;"></div>
-      <button class="btn-primary" onclick="resetQuiz()">Try Again</button>
-    </div>
-  </div>
+  <div id="qa-content"></div>
+</div>
 </div>
 
-<!-- ===== FLASHCARD MODE ===== -->
-<div id="mode-flashcard" class="mode">
-  <div class="fc-header">
-    <h2>🗂️ Flashcards</h2>
-    <p>Flip each card to reveal the answer. Mark what you know — review the rest.</p>
-  </div>
-
-  <div class="fc-filters" id="fc-filter-btns">
-    <button class="badge active" onclick="setFcFilter('all', this)">All</button>
-    <button class="badge" onclick="setFcFilter('term', this)">Key Terms</button>
-    <button class="badge" onclick="setFcFilter('person', this)">Important People</button>
-    <button class="badge" onclick="setFcFilter('date', this)">Important Dates</button>
-    <button class="badge" onclick="setFcFilter('review', this)">Review Again</button>
-    <button class="badge" onclick="setFcFilter('know', this)">Know It ✓</button>
-  </div>
-
-  <div class="fc-stats">
-    <div class="fc-stat stat-total"><strong id="fc-stat-total">0</strong><span>Total</span></div>
-    <div class="fc-stat stat-know"><strong id="fc-stat-know">0</strong><span>Know It</span></div>
-    <div class="fc-stat stat-review"><strong id="fc-stat-review">0</strong><span>Review Again</span></div>
-  </div>
-
-  <div class="fc-counter"><strong id="fc-pos">1</strong> / <strong id="fc-total">1</strong></div>
-  <div class="fc-card-status" id="fc-status"></div>
-
-  <div class="fc-scene" id="fc-scene">
-    <div class="fc-card" id="fc-card" onclick="flipCard()">
-      <div class="fc-face front">
-        <span class="fc-category-tag" id="fc-cat-tag">TERM</span>
-        <div class="fc-face-label">— Question —</div>
-        <div class="front-text" id="fc-front-text">Loading…</div>
-        <div class="fc-flip-hint">tap to flip</div>
-      </div>
-      <div class="fc-face back">
-        <span class="fc-category-tag" id="fc-cat-tag-back">TERM</span>
-        <div class="fc-face-label">— Answer —</div>
-        <div class="back-text" id="fc-back-text">Loading…</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="fc-controls">
-    <button class="fc-nav-btn" id="fc-prev-btn" onclick="fcNavigate(-1)" disabled>&#8592;</button>
-    <button class="btn-review" onclick="markCard('review')">Review Again</button>
-    <button class="btn-know" onclick="markCard('know')">Know It ✓</button>
-    <button class="fc-nav-btn" id="fc-next-btn" onclick="fcNavigate(1)">&#8594;</button>
-  </div>
-
-  <div id="fc-empty" class="fc-empty" style="display:none;">No cards in this category.</div>
-</div>
-
+<!-- ══════════════════════════════════════════
+     SCRIPT
+══════════════════════════════════════════ -->
 <script>
-// ==================== DATA ====================
+// ─────────────────────────────────────────
+// DATA  (80 Q&A items, exactly as given)
+// ─────────────────────────────────────────
+const DATA = [
+  // ── Revolution & Agreements (1–20) ──
+  {id:1, top:"Revolution", q:"What was the temporary constitution used to support the revolutionary government during the war against Spain?", a:"The Pact / Constitution of Biak-na-Bato."},
+  {id:2, top:"Revolution", q:"What was the main goal stated in the Biak-na-Bato Constitution?", a:"The total separation of the Philippines from the Spanish monarchy and the creation of an independent Philippine republic."},
+  {id:3, top:"Revolution", q:"What happened to Emilio Aguinaldo and his companions under the Pact of Biak-na-Bato?", a:"They went into voluntary exile in Hong Kong."},
+  {id:4, top:"Revolution", q:"What was promised to the rebels under the Pact of Biak-na-Bato?", a:"P800,000, to be paid in installments."},
+  {id:5, top:"Revolution", q:"Why did the Pact of Biak-na-Bato fail?", a:"Because of mutual distrust, and fighting resumed."},
+  {id:6, top:"Revolution", q:"What important event happened on June 12, 1898?", a:"The Philippine Declaration of Independence."},
+  {id:7, top:"Revolution", q:"Where was the Philippine Declaration of Independence proclaimed?", a:"In Kawit, Cavite."},
+  {id:8, top:"Revolution", q:"Who was the leader associated with the Philippine Declaration of Independence?", a:"Emilio Aguinaldo."},
+  {id:9, top:"Revolution", q:"Who read the act of the Philippine Declaration of Independence?", a:"Ambrosio Rianzares Bautista."},
+  {id:10,top:"Revolution", q:"What treaty later ignored the Philippine Declaration of Independence?", a:"The Treaty of Paris of 1898."},
+  {id:11,top:"Revolution", q:"What did the Treaty of Paris of 1898 do?", a:"It ended the Spanish-American War and ceded the Philippines, Puerto Rico, and Guam to the United States for $20 million."},
+  {id:12,top:"Revolution", q:"What was the result of the Treaty of Paris on Philippine history?", a:"It ignored Filipino independence and helped trigger the Philippine-American War."},
+  {id:13,top:"Revolution", q:"What event marked the beginning of the armed revolution against Spain?", a:"The Cry of Pugad Lawin / Cry of Balintawak."},
+  {id:14,top:"Revolution", q:"What did the Katipuneros tear during the Cry?", a:"Their cedulas or residence certificates."},
+  {id:15,top:"Revolution", q:"What did tearing the cedulas symbolize?", a:"It symbolized breaking ties with Spanish rule and choosing revolution."},
+  {id:16,top:"Revolution", q:"What were the disputed places connected to the Cry?", a:"Pugad Lawin, Balintawak, Bahay Toro, and Tandang Sora's barn."},
+  {id:17,top:"Revolution", q:"Who led the Katipunan in the Cry of Pugad Lawin / Balintawak?", a:"Andres Bonifacio and the Katipunan."},
+  {id:18,top:"Revolution", q:"Why did Bonifacio and the Katipunan decide to rise up?", a:"Because the Katipunan had been discovered, and arrests and torture had started."},
+  {id:19,top:"Revolution", q:"Who revealed the existence of the Katipunan to Spanish authorities?", a:"Teodoro Patiño."},
+  {id:20,top:"Revolution", q:"Who tried to seek foreign support for the planned revolution, especially from Japan?", a:"Andres Bonifacio and Emilio Jacinto."},
 
-const topics = [
-  {
-    num: 1, title: "Rizal's Retraction",
-    sections: [
-      { heading: "Background", content: [
-        "Before his execution on <span class='highlight-date'>December 30, 1896</span>, <span class='highlight-person'>Dr. Jose Rizal</span> was said to have written a retraction document.",
-        "The document stated that he withdrew his anti-Catholic and Masonic beliefs.",
-        "Rizal was linked to Freemasonry, which conflicted with the Catholic Church."
-      ]},
-      { heading: "Main Content of the Retraction (December 29, 1896)", content: [
-        "Rizal stated that he remained a Catholic.",
-        "He retracted writings and actions against the Church.",
-        "He condemned Masonry as an enemy of the Church."
-      ]},
-      { heading: "Jesuits' Role", content: [
-        "<span class='highlight-person'>Vicente Balaguer, Jose Vilaclara, Estanislao March, Luis Visa, Federico Faura, and Miguel Saderra</span> — were tasked by Jesuit Superior <span class='highlight-person'>Fr. Pio Pi</span> with ministering to Rizal's spiritual needs.",
-        "Their goal was to persuade Rizal to publicly retract his anti-Catholic views and Masonic ties."
-      ]},
-      { heading: "Debate About Authenticity", content: [
-        "<strong>Supporting authenticity:</strong> Historians like <span class='highlight-person'>Gregorio Zaide</span>, <span class='highlight-person'>Ambeth Ocampo</span>, and <span class='highlight-person'>John Schumacher</span> believed the document was genuine.",
-        "<strong>Against authenticity:</strong> Some believed Rizal would never abandon his beliefs before death. The original document was not immediately shown to the public, causing suspicion.",
-        "<span class='highlight-person'>Fr. Manuel Gracia</span> is credited with discovering the Rizal retraction document."
-      ]},
-      { heading: "Important Idea", content: [
-        "Whether authentic or not, Rizal's legacy as a national hero remains important because of his contributions to reform and nationalism."
-      ]}
-    ]
-  },
-  {
-    num: 2, title: "Rizal and Freemasonry",
-    sections: [
-      { heading: "Why Rizal Joined Freemasonry", content: [
-        "Rizal joined Freemasonry because many Filipinos believed the friars abused their power.",
-        "Freemasonry promoted: <span class='highlight-term'>Equality, Freedom, Reform, Anti-friar ideas</span>."
-      ]},
-      { heading: "Conflict with the Church", content: [
-        "The Catholic Church considered Masonry dangerous and anti-Church.",
-        "Rizal's connection to Masonry became one reason the Church pressured him to retract his beliefs before execution."
-      ]}
-    ]
-  },
-  {
-    num: 3, title: "Exposure of the Katipunan",
-    sections: [
-      { heading: "Discovery of the Katipunan", content: [
-        "The <span class='highlight-term'>Katipunan</span> was a secret revolutionary organization founded by <span class='highlight-person'>Andres Bonifacio</span>.",
-        "It was founded on <span class='highlight-date'>July 7, 1892</span>.",
-        "It aimed to gain independence from Spain."
-      ]},
-      { heading: "How It Was Exposed (August 19, 1896)", content: [
-        "<span class='highlight-person'>Teodoro Patiño</span> revealed the existence of the Katipunan after a conflict with another member.",
-        "Spanish authorities then arrested many Filipinos, tortured suspects, and investigated revolutionary activities."
-      ]}
-    ]
-  },
-  {
-    num: 4, title: "Cry of Pugad Lawin / Balintawak",
-    sections: [
-      { heading: "Meaning (August 23, 1896)", content: [
-        "The <span class='highlight-term'>Cry of Pugad Lawin</span> marked the beginning of the Philippine Revolution in 1896.",
-        "It symbolized Filipinos' decision to fight Spain for freedom."
-      ]},
-      { heading: "Cedula Tearing (August 23, 1896)", content: [
-        "Katipuneros tore their <span class='highlight-term'>cedulas</span> (residence certificates).",
-        "This symbolized rejection of Spanish authority and taxes."
-      ]},
-      { heading: "Leaders Present", content: [
-        "<span class='highlight-person'>Andres Bonifacio</span> and <span class='highlight-person'>Emilio Jacinto</span> and other Katipunan leaders and delegates."
-      ]},
-      { heading: "Historical Debate", content: [
-        "Historians disagree on exact location: <span class='highlight-term'>Pugad Lawin, Balintawak, Bahay Toro, Banlat</span>.",
-        "Exact date and details of the event remain disputed."
-      ]},
-      { heading: "Importance", content: [
-        "Considered the official start of armed resistance against Spain."
-      ]}
-    ]
-  },
-  {
-    num: 5, title: "Revolution and Agreements",
-    sections: [
-      { heading: "Pact of Biak-na-Bato (December 14, 1897)", content: [
-        "Agreement between the Spanish government and Filipino revolutionaries, intended to temporarily stop the revolution.",
-        "Main terms: <span class='highlight-person'>Aguinaldo</span> and leaders agreed to go to Hong Kong. Spain promised amnesty, reforms, and money payment worth <span class='highlight-term'>P800,000</span> in installments.",
-        "<span class='highlight-person'>Pedro Paterno</span> was involved in the negotiations.",
-        "Result: The truce <strong>failed</strong> because both sides distrusted each other. Fighting resumed."
-      ]},
-      { heading: "Philippine Independence Proclamation (June 12, 1898)", content: [
-        "Location: <span class='highlight-term'>Kawit, Cavite</span>.",
-        "Led by <span class='highlight-person'>Emilio Aguinaldo</span>.",
-        "Declared independence from Spain.",
-        "The Philippine flag was first officially waved.",
-        "The national anthem was first played."
-      ]}
-    ]
-  },
-  {
-    num: 6, title: "Malolos Republic",
-    sections: [
-      { heading: "Malolos Constitution Background", content: [
-        "Drafted after Aguinaldo returned from Hong Kong.",
-        "The Revolutionary Congress met at <span class='highlight-term'>Barasoain Church in Malolos, Bulacan</span>.",
-        "Congress opened: <span class='highlight-date'>September 15, 1898</span>."
-      ]},
-      { heading: "Main Author & Approval", content: [
-        "Main Author: <span class='highlight-person'>Felipe G. Calderon</span> (Father of the Malolos Constitution).",
-        "Approved on <span class='highlight-date'>December 23, 1898</span>.",
-        "Promulgated on <span class='highlight-date'>January 21, 1899</span>."
-      ]},
-      { heading: "Important Features", content: [
-        "<span class='highlight-term'>Legislative supremacy</span> — the Legislature was stronger than the executive and judiciary.",
-        "<span class='highlight-term'>Permanent Commission</span> — served as legislative body when Assembly was not in session.",
-        "<span class='highlight-term'>Unicameral Legislature</span> — only one legislative chamber.",
-        "<span class='highlight-term'>Separation of Church and State</span> — government and religion must be separate."
-      ]},
-      { heading: "Importance", content: [
-        "First Philippine Republic in Asia.",
-        "First democratic constitution in Asia."
-      ]}
-    ]
-  },
-  {
-    num: 7, title: "Philippine Constitutions",
-    sections: [
-      { heading: "1935 Constitution — Commonwealth Government", content: [
-        "Created during the American colonial period. Approved to prepare the Philippines for full independence.",
-        "Established the Commonwealth Government. <span class='highlight-person'>Manuel L. Quezon</span> became the first Commonwealth President.",
-        "Type: <span class='highlight-term'>Presidential form of government</span>. President = Head of State + Head of Government.",
-        "Three branches: <span class='highlight-term'>Executive</span> (enforces laws), <span class='highlight-term'>Legislative</span> (bicameral: Senate + HoR), <span class='highlight-term'>Judiciary</span> (interprets laws).",
-        "Features: Separation of powers, checks and balances, Bill of Rights, limited presidential term."
-      ]},
-      { heading: "1943 Constitution — Japanese-Sponsored Republic", content: [
-        "Created during Japanese occupation in World War II.",
-        "<span class='highlight-person'>Jose P. Laurel</span> became president.",
-        "Type: Republican government with strong executive. <span class='highlight-term'>Limited democracy</span>.",
-        "Only one political party allowed. Citizens expected to cooperate with Japan.",
-        "Government heavily influenced by Japanese military control."
-      ]},
-      { heading: "1973 Constitution — Marcos-Era Parliamentary System", content: [
-        "Implemented during <span class='highlight-person'>President Ferdinand Marcos</span>. Ratified after Martial Law.",
-        "Changed government from presidential to <span class='highlight-term'>parliamentary</span>.",
-        "President = Head of State (symbolic). Prime Minister = Head of Government.",
-        "<span class='highlight-term'>Batasang Pambansa</span> = national legislature.",
-        "Greater powers concentrated under Marcos. Martial Law affected civil liberties.",
-        "Amendments later strengthened presidential powers again."
-      ]},
-      { heading: "1987 Constitution — Restored Democracy", content: [
-        "Created after the <span class='highlight-date'>February 25, 1986</span> EDSA People Power Revolution.",
-        "Drafted under <span class='highlight-person'>President Corazon Aquino</span>.",
-        "Ratified: <span class='highlight-date'>February 2, 1987</span>.",
-        "Type: <span class='highlight-term'>Democratic and presidential system</span>.",
-        "Features: Restored democracy, strengthened human rights, restored separation of powers, limited presidential powers, guaranteed freedom of speech/press/assembly, recognized public accountability."
-      ]}
-    ]
-  },
-  {
-    num: 8, title: "Martial Law Era",
-    sections: [
-      { heading: "Martial Law Declaration (September 21, 1972)", content: [
-        "Declared by <span class='highlight-person'>President Ferdinand Marcos</span>.",
-        "Constitutional basis: 1935 Constitution, Article VII, Section 10 — allowed Martial Law during invasion, rebellion, or danger to public safety.",
-        "Effects: Marcos assumed powers of Executive, Legislative, and Judiciary."
-      ]},
-      { heading: "General Order No. 1 (September 22, 1972)", content: [
-        "Marcos declared he would govern the nation directly."
-      ]},
-      { heading: "Media Shutdown", content: [
-        "TV stations closed. Newspapers shut down. Radio stations controlled by government."
-      ]},
-      { heading: "Human Rights Violations", content: [
-        "Arrests (400+), Torture, Forced disappearances, Killings, Media suppression.",
-        "Victims: <span class='highlight-person'>William Begg, Lorena Barros, Macli-ing Dulag, Albert 'Abet' Enriquez</span>.",
-        "The <span class='highlight-term'>HRVCB (Human Rights Victims' Claims Board)</span> recognized thousands of Martial Law victims."
-      ]},
-      { heading: "Key Opposition", content: [
-        "<span class='highlight-person'>Benigno 'Ninoy' Aquino Jr.</span> — major opposition leader during Marcos era."
-      ]}
-    ]
-  },
-  {
-    num: 9, title: "Batasang Pambansa",
-    sections: [
-      { heading: "Meaning & Function", content: [
-        "National legislature during the <span class='highlight-term'>Marcos-era parliamentary system</span>.",
-        "Functions: Made laws, held question hour for officials, could withdraw confidence from the Prime Minister."
-      ]},
-      { heading: "Structure", content: [
-        "Members represented regions and sectors.",
-        "Legislative power was vested in the Batasang Pambansa."
-      ]},
-      { heading: "Parliamentary Structure", content: [
-        "President = Head of State.",
-        "Prime Minister = Head of Government.",
-        "Cabinet was responsible to the Batasang Pambansa."
-      ]}
-    ]
-  },
-  {
-    num: 10, title: "Judiciary",
-    sections: [
-      { heading: "Supreme Court — Highest Court in the Philippines", content: [
-        "Judicial power is vested in the Supreme Court and inferior courts established by law."
-      ]},
-      { heading: "Composition", content: [
-        "<span class='highlight-term'>1 Chief Justice</span> and <span class='highlight-term'>14 Associate Justices</span>."
-      ]},
-      { heading: "Powers of the Supreme Court", content: [
-        "Decide constitutional issues.",
-        "Review lower court decisions.",
-        "Handle petitions: <span class='highlight-term'>Habeas corpus, Mandamus, Certiorari</span>.",
-        "Supervise lower courts."
-      ]},
-      { heading: "Qualifications of Justices", content: [
-        "Natural-born Filipino citizen.",
-        "At least <span class='highlight-term'>40 years old</span>.",
-        "Judge or lawyer for at least <span class='highlight-term'>10 years</span>."
-      ]}
-    ]
-  },
-  {
-    num: 11, title: "Taxation During Spanish Period",
-    sections: [
-      { heading: "Purpose of Spanish Taxes", content: [
-        "Spain collected taxes to support: colonial government, military, and Church activities."
-      ]},
-      { heading: "Types of Taxes", content: [
-        "<span class='highlight-term'>Tribute</span> — Basic tax paid by Filipinos.",
-        "<span class='highlight-term'>Cedula Tax</span> — Residence certificate tax. Cedulas were torn during the Cry of Pugad Lawin.",
-        "<span class='highlight-term'>Polo y Servicios</span> — Forced labor system. Filipino males required to work for the government.",
-        "<span class='highlight-term'>Bandala</span> — Forced selling of goods to the government at low prices."
-      ]},
-      { heading: "Effects on Filipinos", content: [
-        "Poverty, Abuse, Anger against Spanish rule. Helped inspire nationalism and revolution."
-      ]}
-    ]
+  // ── Malolos Republic (21–32) ──
+  {id:21,top:"Malolos", q:"What is the Malolos Constitution often called?", a:"The first republican constitution in Asia."},
+  {id:22,top:"Malolos", q:"What was the revolutionary congress that helped form the Malolos Republic?", a:"The Revolutionary Congress at Malolos."},
+  {id:23,top:"Malolos", q:"Where did the Revolutionary Congress meet?", a:"At Barasoain Church in Malolos, Bulacan."},
+  {id:24,top:"Malolos", q:"Who mainly drafted the Malolos Constitution?", a:"Felipe G. Calderon."},
+  {id:25,top:"Malolos", q:"When was the Malolos Constitution approved?", a:"December 23, 1898."},
+  {id:26,top:"Malolos", q:"When was the Malolos Constitution promulgated by Aguinaldo?", a:"January 21, 1899."},
+  {id:27,top:"Malolos", q:"What is legislative supremacy?", a:"The principle that the legislative branch is superior to the executive and judicial branches."},
+  {id:28,top:"Malolos", q:"Why was legislative supremacy included in the Malolos Constitution?", a:"To prevent the predominance of ignorant military elements."},
+  {id:29,top:"Malolos", q:"What kind of legislature did the Malolos Constitution establish?", a:"A unicameral or one-house legislature."},
+  {id:30,top:"Malolos", q:"What is the permanent commission in the Malolos Constitution?", a:"A commission that acted as the legislature when the Assembly was not in session."},
+  {id:31,top:"Malolos", q:"What important principle of government and religion was recognized in the Malolos Constitution?", a:"Separation of Church and State."},
+  {id:32,top:"Malolos", q:"Who is another important person linked to the Malolos government aside from Calderon?", a:"Apolinario Mabini."},
+
+  // ── Philippine Constitutions (33–50) ──
+  {id:33,top:"Constitutions", q:"What constitution belonged to the Commonwealth Government?", a:"The 1935 Philippine Constitution."},
+  {id:34,top:"Constitutions", q:"What system of government did the 1935 Constitution use?", a:"A presidential system."},
+  {id:35,top:"Constitutions", q:"What major political principle was used in the 1935 Constitution?", a:"Separation of powers."},
+  {id:36,top:"Constitutions", q:"What government phrase is closely associated with the 1935 Constitution?", a:"The Commonwealth of the Philippines."},
+  {id:37,top:"Constitutions", q:"What constitution belonged to the Japanese-sponsored Republic?", a:"The 1943 Philippine Constitution."},
+  {id:38,top:"Constitutions", q:"What kind of government did the 1943 Constitution use?", a:"A parliamentary-style government."},
+  {id:39,top:"Constitutions", q:"Who was associated with the 1943 Constitution?", a:"Jose P. Laurel."},
+  {id:40,top:"Constitutions", q:"What constitution belonged to the Martial Law period?", a:"The 1973 Philippine Constitution."},
+  {id:41,top:"Constitutions", q:"What system of government was used under the 1973 Constitution?", a:"A parliamentary system."},
+  {id:42,top:"Constitutions", q:"What legislature was created under the 1973 Constitution?", a:"The Batasang Pambansa."},
+  {id:43,top:"Constitutions", q:"Who was the president linked to the 1973 Constitution?", a:"Ferdinand Marcos."},
+  {id:44,top:"Constitutions", q:"What did Marcos do in 1976 regarding the 1973 Constitution?", a:"He called for a referendum and the constitution was later amended."},
+  {id:45,top:"Constitutions", q:"What constitution restored democracy after the People Power Revolution?", a:"The 1987 Philippine Constitution."},
+  {id:46,top:"Constitutions", q:"What system of government was restored in the 1987 Constitution?", a:"The presidential system."},
+  {id:47,top:"Constitutions", q:"What are the two branches of Congress under the 1987 Constitution?", a:"The Senate and the House of Representatives."},
+  {id:48,top:"Constitutions", q:"How many senators are there under the 1987 Constitution?", a:"24 senators."},
+  {id:49,top:"Constitutions", q:"What phrase best describes the 1987 Constitution's political design?", a:"Checks and balances."},
+  {id:50,top:"Constitutions", q:"What does the 1987 Constitution protect strongly?", a:"Human rights."},
+
+  // ── Taxation & Agrarian Reform (51–68) ──
+  {id:51,top:"Taxation", q:"What was the main tax imposed on Filipinos during the Spanish period?", a:"Tribute."},
+  {id:52,top:"Taxation", q:"What document replaced tribute in 1884?", a:"Cedula Personal or cedula."},
+  {id:53,top:"Taxation", q:"What was the forced labor system during Spanish rule?", a:"Polo y Servicio."},
+  {id:54,top:"Taxation", q:"What was the forced sale or requisitioning of goods under Spain?", a:"Bandala."},
+  {id:55,top:"Taxation", q:"What was agrarian reform?", a:"The redistribution of agricultural land from large landowners to farmers and tenants."},
+  {id:56,top:"Taxation", q:"What is the purpose of agrarian reform?", a:"To promote social justice, rural development, food security, and better living conditions for farmers."},
+  {id:57,top:"Taxation", q:"What law is the main legal basis of CARP?", a:"Republic Act No. 6657."},
+  {id:58,top:"Taxation", q:"What does CARP stand for?", a:"Comprehensive Agrarian Reform Program."},
+  {id:59,top:"Taxation", q:"What government office implements agrarian reform?", a:"The Department of Agrarian Reform (DAR)."},
+  {id:60,top:"Taxation", q:"What did PD 27 do?", a:"It declared the country a land reform area and transferred ownership of land to the farmers who tilled it."},
+  {id:61,top:"Taxation", q:"What crops were mainly covered by PD 27?", a:"Rice and corn lands."},
+  {id:62,top:"Taxation", q:"What were the main limitations of PD 27?", a:"It had a limited scope, excluded other crops, and had implementation problems."},
+  {id:63,top:"Taxation", q:"What law ended share tenancy and created the leasehold system?", a:"Republic Act No. 3844 or the Agricultural Land Reform Code."},
+  {id:64,top:"Taxation", q:"What was one key policy of Republic Act No. 3844?", a:"To establish owner-cultivatorship and the economic family-size farm."},
+  {id:65,top:"Taxation", q:"What is one major support service emphasized by CARP?", a:"Training, irrigation, quality seeds, access to credit, and farm-to-market roads."},
+  {id:66,top:"Taxation", q:"What was the purpose of CARP beyond land transfer?", a:"To promote rural development and strengthen farmers through support services."},
+  {id:67,top:"Taxation", q:"What is the maximum land area a landowner may keep under CARP?", a:"5 hectares."},
+  {id:68,top:"Taxation", q:"What agency helps decide land-size limits under CARP?", a:"The Presidential Agrarian Reform Council (PARC)."},
+
+  // ── Judiciary & Supreme Court (69–80) ──
+  {id:69,top:"Judiciary", q:"What is the highest court in the Philippines?", a:"The Supreme Court of the Philippines."},
+  {id:70,top:"Judiciary", q:"What is judicial review?", a:"The power of the courts to determine whether laws or acts are constitutional."},
+  {id:71,top:"Judiciary", q:"What does judicial power mean in the 1987 Constitution?", a:"It includes settling actual controversies and checking for grave abuse of discretion by any branch of government."},
+  {id:72,top:"Judiciary", q:"What is the Judicial and Bar Council (JBC) for?", a:"It screens and helps prepare nominees for judicial appointments."},
+  {id:73,top:"Judiciary", q:"What principle prevents one branch of government from becoming too powerful?", a:"Checks and balances."},
+  {id:74,top:"Judiciary", q:"What is due process?", a:"No person shall be deprived of life, liberty, or property without due process of law."},
+  {id:75,top:"Judiciary", q:"What is double jeopardy?", a:"No person shall be punished twice for the same offense."},
+  {id:76,top:"Judiciary", q:"What is constitutional supremacy?", a:"The Constitution is the highest law of the land."},
+  {id:77,top:"Judiciary", q:"What is the Supreme Court's power over lower courts?", a:"It has administrative supervision over all courts and may discipline judges under the Constitution."},
+  {id:78,top:"Judiciary", q:"What rights are protected by the Bill of Rights in the lesson?", a:"Rights such as due process, free speech, religion, assembly, privacy, and protection against double jeopardy."},
+  {id:79,top:"Judiciary", q:"What is the writ of habeas corpus?", a:"A protection that may be suspended only in cases of invasion, insurrection, or rebellion when public safety requires it."},
+  {id:80,top:"Judiciary", q:"What does the Supreme Court do when a law is questioned as unconstitutional?", a:"It may review and decide whether the law or treaty violates the Constitution."},
+];
+
+// ─────────────────────────────────────────
+// TOPIC helpers
+// ─────────────────────────────────────────
+const TOPIC_CLASS = {
+  "Revolution":"t-rev","Malolos":"t-mal","Constitutions":"t-con",
+  "Taxation":"t-tax","Judiciary":"t-jud"
+};
+function topClass(t){ return TOPIC_CLASS[t]||""; }
+
+// ─────────────────────────────────────────
+// MEMORY TRAINER STATE
+// ─────────────────────────────────────────
+const S={
+  allItems:[],pendingQ:[],reviewPool:[],
+  current:null,answered:false,qCount:0,
+  randomOrder:false,filter:'all',
+  burst:false,burstQ:[],nextBurstAt:8,busy:false
+};
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+
+function initItems(filter){
+  S.filter=filter;
+  const src=DATA.filter(r=>filter==='all'||r.top===filter);
+  S.allItems=src.map(r=>({...r,easyStreak:0,status:'pending',reviewAt:null}));
+  S.pendingQ=[...S.allItems];
+  if(S.randomOrder)shuffle(S.pendingQ);
+  S.reviewPool=[];S.qCount=0;S.burst=false;S.burstQ=[];
+  S.nextBurstAt=rnd(7,10);S.answered=false;S.current=null;
+}
+
+function nextQ(){
+  S.answered=false;S.busy=false;
+  if(S.burst){
+    if(S.burstQ.length>0){S.current=S.burstQ.shift();render();return;}
+    S.burst=false;S.nextBurstAt=S.qCount+rnd(7,10);
   }
+  const ready=S.reviewPool.filter(i=>i.reviewAt<=S.qCount&&i.status!=='mastered');
+  if(S.qCount>=S.nextBurstAt&&ready.length>0){
+    const burst=ready.slice(0,Math.min(5,ready.length));
+    burst.forEach(b=>{S.reviewPool=S.reviewPool.filter(i=>i.id!==b.id);});
+    S.burstQ=burst;S.burst=true;
+    S.current=S.burstQ.shift();render();return;
+  }
+  if(S.pendingQ.length>0){S.current=S.pendingQ.shift();render();return;}
+  if(S.reviewPool.length>0){
+    S.reviewPool.sort((a,b)=>a.reviewAt-b.reviewAt);
+    S.current=S.reviewPool.shift();render();return;
+  }
+  S.current=null;renderDone();
+}
+
+function checkAnswer(){
+  if(S.busy)return;
+  S.answered=true;render();
+}
+
+function rate(r){
+  if(S.busy||!S.answered)return;
+  S.busy=true;
+  const item=S.current;
+  if(r==='easy'){
+    item.easyStreak++;
+    if(item.easyStreak>=2){item.status='mastered';}
+    else{item.status='review';item.reviewAt=S.qCount+rnd(7,10);
+      S.reviewPool=S.reviewPool.filter(i=>i.id!==item.id);S.reviewPool.push(item);}
+  } else if(r==='missed'){
+    item.easyStreak=0;item.status='review';item.reviewAt=S.qCount+rnd(4,7);
+    S.reviewPool=S.reviewPool.filter(i=>i.id!==item.id);S.reviewPool.push(item);
+  } else {
+    item.easyStreak=0;item.status='review';item.reviewAt=S.qCount+rnd(7,10);
+    S.reviewPool=S.reviewPool.filter(i=>i.id!==item.id);S.reviewPool.push(item);
+  }
+  S.qCount++;nextQ();
+}
+
+function toggleRandom(){
+  S.randomOrder=!S.randomOrder;
+  document.getElementById('rnd-trk').className='trk'+(S.randomOrder?' on':'');
+  document.getElementById('rnd-btn').className='tog-btn'+(S.randomOrder?' on':'');
+  if(S.randomOrder)shuffle(S.pendingQ);
+}
+
+function setFilter(btn){
+  document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  initItems(btn.dataset.top);
+  document.getElementById('done-scr').style.display='none';
+  document.getElementById('main-card').style.display='';
+  nextQ();updateStats();
+}
+
+function doReset(){
+  if(!confirm('Reset all progress?'))return;
+  initItems(S.filter);
+  document.getElementById('done-scr').style.display='none';
+  document.getElementById('main-card').style.display='';
+  nextQ();updateStats();
+}
+
+function updateStats(){
+  const total=S.allItems.length;
+  const mastered=S.allItems.filter(i=>i.status==='mastered').length;
+  const rev=S.reviewPool.length;
+  const pend=S.pendingQ.length;
+  const pct=total?Math.round(mastered/total*100):0;
+  document.getElementById('s-tot').textContent=total+' total';
+  document.getElementById('s-mas').textContent=mastered+' mastered';
+  document.getElementById('s-rev').textContent=rev+' to review';
+  document.getElementById('s-pend').textContent=pend+' pending';
+  document.getElementById('pb-fill').style.width=pct+'%';
+  document.getElementById('pb-lbl').textContent=pct+'% mastered · Q#'+(S.qCount+1);
+}
+
+function render(){
+  const item=S.current;if(!item)return;
+  const card=document.getElementById('main-card');
+  if(!S.answered){card.style.animation='none';void card.offsetWidth;card.style.animation='';}
+  // meta
+  const meta=document.getElementById('card-meta');
+  let b=`<span class="badge ${topClass(item.top)}">${item.top}</span>`;
+  b+=`<span class="badge bd-topic">Q${item.id}</span>`;
+  if(S.burst||item.status==='review')b+=`<span class="badge bd-rev">↺ Review</span>`;
+  if(item.easyStreak===1)b+=`<span class="badge bd-e1">1× Easy ✓</span>`;
+  meta.innerHTML=b;
+  document.getElementById('q-text').textContent=item.q;
+  const aa=document.getElementById('ans-area');
+  const bc=document.getElementById('btn-chk');
+  const rr=document.getElementById('rate-row');
+  if(S.answered){
+    document.getElementById('ans-text').textContent=item.a;
+    aa.classList.add('open');bc.style.display='none';rr.classList.add('show');
+  } else {
+    aa.classList.remove('open');bc.style.display='block';rr.classList.remove('show');
+  }
+  const rem=S.pendingQ.length+S.reviewPool.length+S.burstQ.length;
+  document.getElementById('sess-info').textContent='Q#'+(S.qCount+1)+' · '+rem+' remaining';
+  updateStats();
+}
+
+function renderDone(){
+  document.getElementById('main-card').style.display='none';
+  document.getElementById('done-scr').style.display='block';
+  document.getElementById('sess-info').textContent='';
+  updateStats();
+}
+
+// ─────────────────────────────────────────
+// Q&A REVIEWER
+// ─────────────────────────────────────────
+const SECTIONS=[
+  {title:"Revolution & Agreements",    top:"Revolution"},
+  {title:"Malolos Republic",           top:"Malolos"},
+  {title:"Philippine Constitutions",   top:"Constitutions"},
+  {title:"Taxation & Agrarian Reform", top:"Taxation"},
+  {title:"Judiciary & Supreme Court",  top:"Judiciary"},
 ];
 
-const importantDates = [
-  { date: "July 7, 1892", event: "Katipunan founded by Andres Bonifacio" },
-  { date: "August 19, 1896", event: "Katipunan discovered/exposed by Spanish authorities" },
-  { date: "August 23, 1896", event: "Cry of Pugad Lawin / Cedula tearing" },
-  { date: "December 29, 1896", event: "Rizal's retraction document signed" },
-  { date: "December 30, 1896", event: "Execution of Jose Rizal" },
-  { date: "December 14, 1897", event: "Pact of Biak-na-Bato signed" },
-  { date: "June 12, 1898", event: "Philippine Independence proclaimed" },
-  { date: "September 15, 1898", event: "Malolos Congress opened" },
-  { date: "December 23, 1898", event: "Malolos Constitution approved" },
-  { date: "January 21, 1899", event: "Malolos Constitution promulgated" },
-  { date: "September 21, 1972", event: "Martial Law declared by Marcos" },
-  { date: "September 22, 1972", event: "General Order No. 1 issued" },
-  { date: "February 25, 1986", event: "EDSA People Power Revolution / restored democracy" },
-  { date: "February 2, 1987", event: "1987 Constitution ratified" },
-];
-
-const importantPeople = [
-  { name: "Jose Rizal", role: "National hero; wrote the retraction document before execution" },
-  { name: "Andres Bonifacio", role: "Founder of the Katipunan" },
-  { name: "Emilio Aguinaldo", role: "First Philippine President; led Independence proclamation" },
-  { name: "Felipe G. Calderon", role: "Main author / Father of the Malolos Constitution" },
-  { name: "Ferdinand Marcos", role: "Declared Martial Law; implemented 1973 Constitution" },
-  { name: "Corazon Aquino", role: "First female Philippine President; restored democracy under 1987 Constitution" },
-  { name: "Fr. Vicente Balaguer", role: "Jesuit priest who attended Rizal before execution" },
-  { name: "Fr. Federico Faura", role: "Jesuit priest connected to Rizal's retraction" },
-  { name: "Fr. Pio Pi", role: "Jesuit Superior who tasked priests to minister to Rizal" },
-  { name: "Fr. Manuel Gracia", role: "Discovered Rizal's retraction document" },
-  { name: "Gregorio Zaide", role: "Historian who supported authenticity of Rizal's retraction" },
-  { name: "Ambeth Ocampo", role: "Historian who discussed Rizal's retraction" },
-  { name: "John Schumacher", role: "Historian who believed the retraction was genuine" },
-  { name: "Teodoro Patiño", role: "Revealed the Katipunan to Spanish authorities" },
-  { name: "Emilio Jacinto", role: '"Brains of the Katipunan"' },
-  { name: "Melchora Aquino (Tandang Sora)", role: '"Mother of the Revolution"' },
-  { name: "Pedro Paterno", role: "Involved in Pact of Biak-na-Bato negotiations" },
-  { name: "Manuel L. Quezon", role: "First Commonwealth President under 1935 Constitution" },
-  { name: "Jose P. Laurel", role: "President of the Japanese-sponsored Republic (1943 Constitution)" },
-  { name: "Benigno 'Ninoy' Aquino Jr.", role: "Major opposition leader during Marcos era" },
-];
-
-const importantTerms = [
-  { term: "Retraction", def: "Withdrawal of beliefs or statements; what Rizal allegedly did before execution" },
-  { term: "Freemasonry", def: "Reform-oriented secret organization opposed by the Catholic Church; Rizal was a member" },
-  { term: "Katipunan", def: "Secret revolutionary society founded by Andres Bonifacio on July 7, 1892" },
-  { term: "Cedula", def: "Residence certificate/tax document; tearing it symbolized rejection of Spanish rule" },
-  { term: "Pact of Biak-na-Bato", def: "Truce between Spain and revolutionaries (Dec 14, 1897); offered P800,000 to Aguinaldo's group" },
-  { term: "Malolos Constitution", def: "First constitution of the Philippine Republic; authored by Felipe G. Calderon; promulgated Jan 21, 1899" },
-  { term: "Batasang Pambansa", def: "National parliament/legislature during the Marcos-era parliamentary system (1973 Constitution)" },
-  { term: "Martial Law", def: "Military control during emergency; declared by Marcos on September 21, 1972" },
-  { term: "Judiciary", def: "Branch of government that interprets laws; led by the Supreme Court" },
-  { term: "Supreme Court", def: "Highest court in the Philippines; composed of 1 Chief Justice + 14 Associate Justices" },
-  { term: "Polo y Servicios", def: "Forced labor system under Spanish rule; Filipino males required to work for the government" },
-  { term: "Bandala", def: "Forced selling of goods to the Spanish government at low prices" },
-  { term: "Tribute", def: "Basic tax paid by Filipinos to Spain" },
-  { term: "Cedula Tax", def: "Residence certificate tax during Spanish period; linked to the Cry of Pugad Lawin" },
-  { term: "Legislative Supremacy", def: "Feature of Malolos Constitution — legislature was stronger than executive and judiciary" },
-  { term: "Unicameral Legislature", def: "Single-chamber legislature; used in the Malolos Constitution" },
-  { term: "HRVCB", def: "Human Rights Victims' Claims Board; recognized thousands of Martial Law victims" },
-  { term: "EDSA People Power Revolution", def: "Peaceful revolution on February 25, 1986 that ousted Marcos and restored democracy" },
-  { term: "General Order No. 1", def: "Issued September 22, 1972 by Marcos declaring he would govern the nation directly" },
-  { term: "Habeas Corpus", def: "Legal petition handled by the Supreme Court; protects against unlawful detention" },
-  { term: "Permanent Commission", def: "Feature of Malolos Constitution; served as legislative body when Assembly was not in session" },
-];
-
-// ==================== QUIZ QUESTIONS ====================
-
-const allQuestions = [
-  // MULTIPLE CHOICE
-  { type:'mc', q:"When was Rizal's retraction document signed?",
-    opts:["December 28, 1896","December 29, 1896","December 30, 1896","December 31, 1896"],
-    ans:1, exp:"The retraction was signed on December 29, 1896, one day before his execution on December 30, 1896." },
-
-  { type:'mc', q:"Who was the Jesuit Superior who tasked priests to minister to Rizal spiritually?",
-    opts:["Fr. Vicente Balaguer","Fr. Federico Faura","Fr. Pio Pi","Fr. Manuel Gracia"],
-    ans:2, exp:"Fr. Pio Pi was the Jesuit Superior who tasked Vicente Balaguer and other priests to attend to Rizal." },
-
-  { type:'mc', q:"Why did Rizal join Freemasonry?",
-    opts:["He was forced by the government","He believed the friars abused their power","To gain support for the revolution","He was invited by Andres Bonifacio"],
-    ans:1, exp:"Many Filipinos, including Rizal, believed the friars abused their power. Freemasonry promoted equality, freedom, reform, and anti-friar ideas." },
-
-  { type:'mc', q:"Who revealed the existence of the Katipunan to Spanish authorities?",
-    opts:["Emilio Jacinto","Melchora Aquino","Teodoro Patiño","Pedro Paterno"],
-    ans:2, exp:"Teodoro Patiño revealed the Katipunan to Spanish authorities after a conflict with another member." },
-
-  { type:'mc', q:"On what date was the Cry of Pugad Lawin?",
-    opts:["July 7, 1892","August 19, 1896","August 23, 1896","December 30, 1896"],
-    ans:2, exp:"The Cry of Pugad Lawin, where Katipuneros tore their cedulas, took place on August 23, 1896." },
-
-  { type:'mc', q:"What did Katipuneros tear during the Cry of Pugad Lawin?",
-    opts:["Spanish flags","Church documents","Their cedulas (residence certificates)","Tax receipts"],
-    ans:2, exp:"Katipuneros tore their cedulas (residence certificates) to symbolize rejection of Spanish authority and taxes." },
-
-  { type:'mc', q:"What was the money payment Spain promised in the Pact of Biak-na-Bato?",
-    opts:["P500,000","P700,000","P800,000","P1,000,000"],
-    ans:2, exp:"Spain promised P800,000 in installments as part of the Pact of Biak-na-Bato signed on December 14, 1897." },
-
-  { type:'mc', q:"Where was Philippine independence proclaimed on June 12, 1898?",
-    opts:["Malolos, Bulacan","Manila","Kawit, Cavite","Biak-na-Bato"],
-    ans:2, exp:"Philippine independence was proclaimed in Kawit, Cavite, led by Emilio Aguinaldo." },
-
-  { type:'mc', q:"Who was the main author of the Malolos Constitution?",
-    opts:["Emilio Aguinaldo","Andres Bonifacio","Pedro Paterno","Felipe G. Calderon"],
-    ans:3, exp:"Felipe G. Calderon is known as the Father of the Malolos Constitution." },
-
-  { type:'mc', q:"Where did the Revolutionary Congress meet to draft the Malolos Constitution?",
-    opts:["Intramuros, Manila","Barasoain Church, Malolos, Bulacan","San Agustin Church","Fort Santiago"],
-    ans:1, exp:"The Revolutionary Congress met at Barasoain Church in Malolos, Bulacan." },
-
-  { type:'mc', q:"What type of legislature did the Malolos Constitution establish?",
-    opts:["Bicameral","Tricameral","Unicameral","Federal"],
-    ans:2, exp:"The Malolos Constitution established a unicameral legislature — only one legislative chamber." },
-
-  { type:'mc', q:"Who became the first Commonwealth President under the 1935 Constitution?",
-    opts:["Emilio Aguinaldo","Sergio Osmeña","Manuel L. Quezon","Jose P. Laurel"],
-    ans:2, exp:"Manuel L. Quezon became the first Commonwealth President established by the 1935 Constitution." },
-
-  { type:'mc', q:"Who was president of the Japanese-sponsored Republic under the 1943 Constitution?",
-    opts:["Manuel L. Quezon","Ferdinand Marcos","Emilio Aguinaldo","Jose P. Laurel"],
-    ans:3, exp:"Jose P. Laurel became president of the Japanese-sponsored Republic during Japanese occupation." },
-
-  { type:'mc', q:"When was Martial Law declared by President Marcos?",
-    opts:["September 20, 1972","September 21, 1972","September 22, 1972","September 23, 1972"],
-    ans:1, exp:"Martial Law was declared on September 21, 1972. General Order No. 1 was issued on September 22, 1972." },
-
-  { type:'mc', q:"How many Associate Justices compose the Philippine Supreme Court?",
-    opts:["10","12","14","16"],
-    ans:2, exp:"The Supreme Court is composed of 1 Chief Justice and 14 Associate Justices." },
-
-  { type:'mc', q:"What is Polo y Servicios?",
-    opts:["A forced selling of goods","A forced labor system for Filipino males","A basic tax paid by Filipinos","A residence certificate tax"],
-    ans:1, exp:"Polo y Servicios was a forced labor system where Filipino males were required to work for the Spanish colonial government." },
-
-  { type:'mc', q:"What is Bandala?",
-    opts:["Forced labor system","Basic tax paid to Spain","Forced selling of goods to the government at low prices","Residence certificate"],
-    ans:2, exp:"Bandala was the forced selling of goods to the Spanish government at low prices, causing economic hardship for Filipinos." },
-
-  { type:'mc', q:"Who is called the 'Brains of the Katipunan'?",
-    opts:["Andres Bonifacio","Teodoro Patiño","Emilio Jacinto","Pedro Paterno"],
-    ans:2, exp:"Emilio Jacinto was called the 'Brains of the Katipunan' for his intellectual contributions." },
-
-  { type:'mc', q:"The 1973 Constitution changed the Philippine government to what type?",
-    opts:["Federal system","Presidential system","Parliamentary system","Theocratic system"],
-    ans:2, exp:"The 1973 Constitution, implemented under Marcos, changed the government from presidential to a parliamentary system." },
-
-  { type:'mc', q:"What was the constitutional basis for Marcos to declare Martial Law?",
-    opts:["1935 Constitution, Article V Section 5","1935 Constitution, Article VII Section 10","1943 Constitution, Article III","Bill of Rights, Section 1"],
-    ans:1, exp:"The 1935 Constitution, Article VII, Section 10 allowed Martial Law during invasion, rebellion, or danger to public safety." },
-
-  { type:'mc', q:"Melchora Aquino (Tandang Sora) is known as the:",
-    opts:["Mother of the Revolution","Brains of the Katipunan","First female president","Founder of Katipunan"],
-    ans:0, exp:"Melchora Aquino, also known as Tandang Sora, is called the 'Mother of the Revolution' for her support of the Katipuneros." },
-
-  { type:'mc', q:"Under what constitution is the Supreme Court's composition defined in current Philippine law?",
-    opts:["1935 Constitution","1943 Constitution","1973 Constitution","1987 Constitution"],
-    ans:3, exp:"The 1987 Constitution, which restored democracy after Martial Law, currently governs the Philippines including the judiciary." },
-
-  // TRUE OR FALSE
-  { type:'tf', q:"Jose Rizal was executed on December 30, 1896.",
-    ans:true, exp:"Correct. Rizal was executed at Bagumbayan (Luneta) on December 30, 1896." },
-
-  { type:'tf', q:"The Malolos Constitution established a bicameral legislature.",
-    ans:false, exp:"False. The Malolos Constitution established a unicameral legislature — only one legislative chamber." },
-
-  { type:'tf', q:"The 1987 Constitution was drafted during the administration of President Corazon Aquino.",
-    ans:true, exp:"Correct. The 1987 Constitution was created after the 1986 EDSA People Power Revolution under President Corazon Aquino." },
-
-  { type:'tf', q:"Martial Law was declared by Marcos on September 22, 1972.",
-    ans:false, exp:"False. Martial Law was declared on September 21, 1972. September 22 was when General Order No. 1 was issued." },
-
-  { type:'tf', q:"The Supreme Court has 1 Chief Justice and 14 Associate Justices.",
-    ans:true, exp:"Correct. The Philippine Supreme Court is composed of 1 Chief Justice and 14 Associate Justices." },
-
-  { type:'tf', q:"Melchora Aquino (Tandang Sora) is known as the 'Brains of the Katipunan'.",
-    ans:false, exp:"False. Emilio Jacinto holds that title. Melchora Aquino (Tandang Sora) is called the 'Mother of the Revolution'." },
-
-  { type:'tf', q:"The 1935 Constitution established a presidential form of government.",
-    ans:true, exp:"Correct. The 1935 Constitution established a presidential government where the President served as both Head of State and Government." },
-
-  { type:'tf', q:"Bandala was a forced labor system imposed on Filipino males during Spanish rule.",
-    ans:false, exp:"False. Bandala was the forced selling of goods at low prices. Polo y Servicios was the forced labor system." },
-
-  { type:'tf', q:"Pedro Paterno was involved in the Pact of Biak-na-Bato negotiations.",
-    ans:true, exp:"Correct. Pedro Paterno played a key role in negotiating the Pact of Biak-na-Bato between Spain and the Filipino revolutionaries." },
-
-  { type:'tf', q:"Jose P. Laurel was the first Commonwealth President of the Philippines.",
-    ans:false, exp:"False. Manuel L. Quezon was the first Commonwealth President. Jose P. Laurel was president of the Japanese-sponsored Republic." },
-
-  { type:'tf', q:"The Katipunan was founded by Andres Bonifacio on July 7, 1892.",
-    ans:true, exp:"Correct. Andres Bonifacio founded the Katipunan on July 7, 1892, as a secret revolutionary organization." },
-
-  // FILL IN THE BLANK
-  { type:'fib', q:"The Katipunan was exposed when ___ revealed its existence to Spanish authorities.",
-    ans:"Teodoro Patiño", hint:"(First and Last Name)", exp:"Teodoro Patiño revealed the Katipunan after a conflict with another member." },
-
-  { type:'fib', q:"Philippine independence was proclaimed in ___, Cavite on June 12, 1898.",
-    ans:"Kawit", hint:"(city name)", exp:"The proclamation happened in Kawit, Cavite, led by Emilio Aguinaldo." },
-
-  { type:'fib', q:"The Malolos Constitution was promulgated on January ___, 1899.",
-    ans:"21", hint:"(day of the month)", exp:"The Malolos Constitution was promulgated on January 21, 1899." },
-
-  { type:'fib', q:"The EDSA People Power Revolution occurred on February ___, 1986.",
-    ans:"25", hint:"(day of the month)", exp:"The EDSA People Power Revolution happened on February 25, 1986, restoring democracy." },
-
-  { type:'fib', q:"Emilio Jacinto was called the '___ of the Katipunan'.",
-    ans:"Brains", hint:"(one word)", exp:"Emilio Jacinto was known as the 'Brains of the Katipunan' for his intellectual leadership." },
-
-  { type:'fib', q:"Under the 1973 Constitution, the ___ was the national legislature during Marcos era.",
-    ans:"Batasang Pambansa", hint:"(two words)", exp:"The Batasang Pambansa served as the national legislature/parliament under the 1973 parliamentary system." },
-
-  { type:'fib', q:"A justice of the Philippine Supreme Court must be at least ___ years old.",
-    ans:"40", hint:"(number)", exp:"Justices must be natural-born Filipino citizens, at least 40 years old, and a judge or lawyer for at least 10 years." },
-
-  { type:'fib', q:"The basic tax paid by Filipinos during the Spanish period was called ___.",
-    ans:"Tribute", hint:"(one word)", exp:"The Tribute was the basic tax paid by Filipinos to the Spanish colonial government." },
-
-  // MATCHING
-  { type:'match', instruction:"Match each date to its corresponding historical event.",
-    pairs:[
-      { left:"July 7, 1892", right:"Katipunan founded" },
-      { left:"August 23, 1896", right:"Cry of Pugad Lawin" },
-      { left:"June 12, 1898", right:"Philippine Independence proclaimed" },
-      { left:"September 21, 1972", right:"Martial Law declared" },
-      { left:"February 25, 1986", right:"EDSA People Power Revolution" },
-    ]
-  },
-  { type:'match', instruction:"Match each person to their historical role.",
-    pairs:[
-      { left:"Andres Bonifacio", right:"Founder of Katipunan" },
-      { left:"Felipe G. Calderon", right:"Author of Malolos Constitution" },
-      { left:"Teodoro Patiño", right:"Revealed Katipunan to Spain" },
-      { left:"Manuel L. Quezon", right:"First Commonwealth President" },
-      { left:"Jose P. Laurel", right:"President under Japanese-sponsored Republic" },
-    ]
-  },
-  { type:'match', instruction:"Match each Spanish tax to its correct definition.",
-    pairs:[
-      { left:"Tribute", right:"Basic tax paid by Filipinos" },
-      { left:"Polo y Servicios", right:"Forced labor system for Filipino males" },
-      { left:"Bandala", right:"Forced selling of goods at low prices" },
-      { left:"Cedula Tax", right:"Residence certificate tax" },
-    ]
-  },
-];
-
-// ==================== FLASHCARD DATA ====================
-
-const allFlashcards = [
-  ...importantTerms.map(t => ({ category:'term', front: t.term, back: t.def })),
-  ...importantPeople.map(p => ({ category:'person', front: p.name, back: p.role })),
-  ...importantDates.map(d => ({ category:'date', front: d.date, back: d.event })),
-];
-
-// ==================== STATE ====================
-
-let quizActive = [];
-let qIndex = 0;
-let score = 0;
-let correct = 0;
-let wrong = 0;
-let matchSelected = null;
-let matchCorrect = 0;
-let matchTotal = 0;
-
-let fcCards = [...allFlashcards];
-let fcIndex = 0;
-let fcFilter = 'all';
-let knownSet = new Set();
-let reviewSet = new Set();
-
-// ==================== REVIEWER ====================
-
-function renderReviewer() {
-  const container = document.getElementById('topics-container');
-
-  let html = '';
-
-  topics.forEach(topic => {
-    let bodyHtml = '';
-    topic.sections.forEach(sec => {
-      bodyHtml += `<h3>${sec.heading}</h3>`;
-      if (sec.content.length === 1) {
-        bodyHtml += `<p>${sec.content[0]}</p>`;
-      } else {
-        bodyHtml += '<ul>' + sec.content.map(c => `<li>${c}</li>`).join('') + '</ul>';
-      }
-    });
-
-    html += `
-      <div class="topic-card" id="topic-${topic.num}">
-        <div class="topic-header" onclick="toggleTopic(this)">
-          <div class="topic-num">${topic.num}</div>
-          <div class="topic-title-text">${topic.title}</div>
-          <div class="topic-chevron">▼</div>
+function buildQA(){
+  const cont=document.getElementById('qa-content');
+  cont.innerHTML='';
+  SECTIONS.forEach(sec=>{
+    const items=DATA.filter(d=>d.top===sec.top);
+    const div=document.createElement('div');
+    div.className='qa-section';
+    div.dataset.topic=sec.top;
+    let html=`<div class="qa-section-title">${sec.title}</div>`;
+    items.forEach(item=>{
+      html+=`
+      <div class="qa-item" id="qai-${item.id}" data-q="${esc(item.q)}" data-a="${esc(item.a)}">
+        <div class="qa-q" onclick="toggleQA(${item.id})">
+          <div class="qa-q-text">${item.q}</div>
+          <span class="qa-q-num">#${item.id}</span>
+          <span class="qa-chevron">▼</span>
         </div>
-        <div class="topic-body">${bodyHtml}</div>
+        <div class="qa-a">
+          <div class="qa-divider"></div>
+          <div class="qa-a-label">Answer</div>
+          <div class="qa-a-text">${item.a}</div>
+        </div>
       </div>`;
+    });
+    div.innerHTML=html;
+    cont.appendChild(div);
   });
+}
 
-  // Important Dates section
-  let datesHtml = '<div class="ref-grid">';
-  importantDates.forEach(d => {
-    datesHtml += `<div class="ref-item"><strong>${d.date}</strong><span>${d.event}</span></div>`;
+function esc(s){ return s.replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function toggleQA(id){
+  const el=document.getElementById('qai-'+id);
+  el.classList.toggle('open');
+}
+function qaRevealAll(){
+  document.querySelectorAll('.qa-item').forEach(el=>el.classList.add('open'));
+}
+function qaCollapseAll(){
+  document.querySelectorAll('.qa-item').forEach(el=>el.classList.remove('open'));
+}
+function qaSearch(val){
+  const v=val.toLowerCase();
+  document.querySelectorAll('.qa-item').forEach(el=>{
+    const q=el.dataset.q.toLowerCase();
+    const a=el.dataset.a.toLowerCase();
+    const match=!v||q.includes(v)||a.includes(v);
+    el.style.display=match?'':'none';
+    if(match&&v)el.classList.add('open');
   });
-  datesHtml += '</div>';
-
-  html += `
-    <div class="topic-card" id="topic-dates">
-      <div class="topic-header" onclick="toggleTopic(this)">
-        <div class="topic-num">📅</div>
-        <div class="topic-title-text">Important Dates</div>
-        <div class="topic-chevron">▼</div>
-      </div>
-      <div class="topic-body">${datesHtml}</div>
-    </div>`;
-
-  // Important People
-  let peopleHtml = '<div class="ref-grid">';
-  importantPeople.forEach(p => {
-    peopleHtml += `<div class="ref-item"><strong>${p.name}</strong><span>${p.role}</span></div>`;
+  // show/hide section headers
+  document.querySelectorAll('.qa-section').forEach(sec=>{
+    const vis=[...sec.querySelectorAll('.qa-item')].some(i=>i.style.display!=='none');
+    sec.querySelector('.qa-section-title').style.display=vis?'':'none';
   });
-  peopleHtml += '</div>';
+}
 
-  html += `
-    <div class="topic-card" id="topic-people">
-      <div class="topic-header" onclick="toggleTopic(this)">
-        <div class="topic-num">👤</div>
-        <div class="topic-title-text">Important People</div>
-        <div class="topic-chevron">▼</div>
-      </div>
-      <div class="topic-body">${peopleHtml}</div>
-    </div>`;
-
-  // Important Terms
-  let termsHtml = '<div class="ref-grid">';
-  importantTerms.forEach(t => {
-    termsHtml += `<div class="ref-item"><strong>${t.term}</strong><span>${t.def}</span></div>`;
+// ─────────────────────────────────────────
+// TAB SWITCHING
+// ─────────────────────────────────────────
+function switchTab(t){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active',['trainer','qa'][i]===t);
   });
-  termsHtml += '</div>';
-
-  html += `
-    <div class="topic-card" id="topic-terms">
-      <div class="topic-header" onclick="toggleTopic(this)">
-        <div class="topic-num">📝</div>
-        <div class="topic-title-text">Important Terms & Definitions</div>
-        <div class="topic-chevron">▼</div>
-      </div>
-      <div class="topic-body">${termsHtml}</div>
-    </div>`;
-
-  container.innerHTML = html;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
 }
 
-function toggleTopic(header) {
-  const card = header.closest('.topic-card');
-  card.classList.toggle('open');
-}
-
-function handleSearch(val) {
-  const q = val.trim().toLowerCase();
-  const cards = document.querySelectorAll('.topic-card');
-  let visible = 0;
-  cards.forEach(card => {
-    const text = card.textContent.toLowerCase();
-    if (!q || text.includes(q)) {
-      card.classList.remove('hidden-by-search');
-      if (q) { card.classList.add('open'); }
-      visible++;
-    } else {
-      card.classList.add('hidden-by-search');
-      card.classList.remove('open');
-    }
-  });
-  const sc = document.getElementById('search-count');
-  if (q) {
-    sc.textContent = `${visible} section${visible !== 1 ? 's' : ''} match "${val}"`;
-  } else {
-    sc.textContent = '';
-  }
-}
-
-// ==================== QUIZ ====================
-
-let selectedTypes = new Set(['mc','tf','fib','match']);
-
-function toggleType(btn) {
-  const t = btn.dataset.type;
-  if (selectedTypes.has(t) && selectedTypes.size > 1) {
-    selectedTypes.delete(t);
-    btn.classList.remove('selected');
-  } else if (!selectedTypes.has(t)) {
-    selectedTypes.add(t);
-    btn.classList.add('selected');
-  }
-}
-
-function shuffleArr(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-function startQuiz() {
-  let pool = allQuestions.filter(q => selectedTypes.has(q.type));
-  if (!pool.length) { alert('Please select at least one question type.'); return; }
-  quizActive = shuffleArr(pool);
-  qIndex = 0; score = 0; correct = 0; wrong = 0;
-
-  document.getElementById('quiz-start-screen').style.display = 'none';
-  document.getElementById('quiz-active-screen').style.display = 'block';
-  document.getElementById('quiz-results-screen').style.display = 'none';
-  renderQuestion();
-}
-
-function renderQuestion() {
-  const total = quizActive.length;
-  const pct = (qIndex / total) * 100;
-  document.getElementById('quiz-progress').style.width = pct + '%';
-  document.getElementById('quiz-counter').textContent = `Question ${qIndex + 1} of ${total}`;
-  document.getElementById('quiz-score').textContent = `Score: ${score}`;
-  document.getElementById('quiz-feedback').innerHTML = '';
-  document.getElementById('quiz-next-btn').style.display = 'none';
-
-  const q = quizActive[qIndex];
-  const area = document.getElementById('quiz-question-area');
-
-  if (q.type === 'mc') renderMC(q, area);
-  else if (q.type === 'tf') renderTF(q, area);
-  else if (q.type === 'fib') renderFIB(q, area);
-  else if (q.type === 'match') renderMatch(q, area);
-}
-
-function renderMC(q, area) {
-  const letters = ['A','B','C','D'];
-  let opts = '';
-  q.opts.forEach((opt, i) => {
-    opts += `<button class="option-btn" onclick="answerMC(this, ${i}, ${q.ans})">
-      <span class="opt-letter">${letters[i]}</span>${opt}
-    </button>`;
-  });
-  area.innerHTML = `
-    <div class="question-card">
-      <div class="q-type-label">⬡ Multiple Choice</div>
-      <div class="q-text">${q.q}</div>
-      <div class="options-grid">${opts}</div>
-    </div>`;
-}
-
-function answerMC(btn, chosen, correct) {
-  const btns = btn.closest('.options-grid').querySelectorAll('.option-btn');
-  btns.forEach((b, i) => {
-    b.disabled = true;
-    if (i === correct) b.classList.add('correct');
-    else if (i === chosen) b.classList.add('wrong');
-  });
-  const isCorrect = chosen === correct;
-  if (isCorrect) { score++; correct++; } else wrong++;
-  showFeedback(isCorrect, quizActive[qIndex].exp);
-  document.getElementById('quiz-score').textContent = `Score: ${score}`;
-  document.getElementById('quiz-next-btn').style.display = 'inline-block';
-  if (isCorrect) correct_count++; else wrong_count++;
-}
-
-let correct_count = 0, wrong_count = 0;
-
-function renderTF(q, area) {
-  area.innerHTML = `
-    <div class="question-card">
-      <div class="q-type-label">⬡ True or False</div>
-      <div class="q-text">${q.q}</div>
-      <div class="tf-grid">
-        <button class="tf-btn" onclick="answerTF(this, true, ${q.ans})">✓ True</button>
-        <button class="tf-btn" onclick="answerTF(this, false, ${q.ans})">✗ False</button>
-      </div>
-    </div>`;
-}
-
-function answerTF(btn, chosen, correctAns) {
-  const btns = btn.closest('.tf-grid').querySelectorAll('.tf-btn');
-  btns.forEach(b => { b.disabled = true; });
-  const isCorrect = chosen === correctAns;
-  if (isCorrect) { score++; correct_count++; btn.classList.add('correct'); }
-  else { wrong_count++; btn.classList.add('wrong'); btns.forEach(b => { if ((b.textContent.includes('True') && correctAns) || (b.textContent.includes('False') && !correctAns)) b.classList.add('correct'); }); }
-  document.getElementById('quiz-score').textContent = `Score: ${score}`;
-  showFeedback(isCorrect, quizActive[qIndex].exp);
-  document.getElementById('quiz-next-btn').style.display = 'inline-block';
-}
-
-function renderFIB(q, area) {
-  area.innerHTML = `
-    <div class="question-card">
-      <div class="q-type-label">⬡ Fill in the Blank</div>
-      <div class="q-text">${q.q}</div>
-      <div class="fib-wrap">
-        <input class="fib-input" id="fib-ans" type="text" placeholder="Type your answer…" onkeydown="if(event.key==='Enter')submitFIB()">
-        <button class="btn-primary" onclick="submitFIB()" style="padding:12px 20px;">Check</button>
-      </div>
-      <div class="fib-hint">Hint: ${q.hint}</div>
-    </div>`;
-  setTimeout(() => document.getElementById('fib-ans').focus(), 100);
-}
-
-function submitFIB() {
-  const input = document.getElementById('fib-ans');
-  if (!input) return;
-  const q = quizActive[qIndex];
-  const userAns = input.value.trim().toLowerCase().replace(/\s+/g,' ');
-  const correctAns = q.ans.toLowerCase().replace(/\s+/g,' ');
-  const isCorrect = userAns === correctAns || correctAns.includes(userAns) && userAns.length > 3;
-  input.disabled = true;
-  input.classList.add(isCorrect ? 'correct' : 'wrong');
-  if (isCorrect) { score++; correct_count++; }
-  else { wrong_count++; input.value = input.value + ' → ' + q.ans; }
-  document.getElementById('quiz-score').textContent = `Score: ${score}`;
-  showFeedback(isCorrect, q.exp);
-  document.getElementById('quiz-next-btn').style.display = 'inline-block';
-  const checkBtn = input.nextElementSibling;
-  if (checkBtn) checkBtn.disabled = true;
-}
-
-function renderMatch(q, area) {
-  matchSelected = null;
-  const pairs = shuffleArr(q.pairs);
-  const rights = shuffleArr(pairs.map(p => p.right));
-  const lefts = pairs.map(p => p.left);
-  matchCorrect = 0; matchTotal = pairs.length;
-
-  const leftHtml = lefts.map((l,i) => `<div class="match-item" data-side="left" data-idx="${i}" data-val="${l}" onclick="selectMatch(this)">${l}</div>`).join('');
-  const rightHtml = rights.map((r,i) => `<div class="match-item" data-side="right" data-idx="${i}" data-val="${r}" onclick="selectMatch(this)">${r}</div>`).join('');
-
-  area.innerHTML = `
-    <div class="question-card">
-      <div class="q-type-label">⬡ Matching</div>
-      <div class="q-text">${q.instruction}</div>
-      <div class="match-container">
-        <div class="match-col">
-          <div class="match-col-label">Column A</div>
-          ${leftHtml}
-        </div>
-        <div class="match-col">
-          <div class="match-col-label">Column B</div>
-          ${rightHtml}
-        </div>
-      </div>
-    </div>`;
-
-  // Store pairs mapping for answer checking
-  area.dataset.pairs = JSON.stringify(pairs);
-}
-
-function selectMatch(item) {
-  if (item.classList.contains('matched-correct') || item.classList.contains('matched-wrong')) return;
-
-  if (!matchSelected) {
-    // First click — must be left side
-    if (item.dataset.side !== 'left') return;
-    matchSelected = item;
-    item.classList.add('selected');
-  } else {
-    // Second click — must be right side
-    if (item.dataset.side !== 'right') {
-      matchSelected.classList.remove('selected');
-      matchSelected = null;
-      return;
-    }
-    const leftVal = matchSelected.dataset.val;
-    const rightVal = item.dataset.val;
-    const area = document.getElementById('quiz-question-area');
-    const pairs = JSON.parse(area.dataset.pairs);
-    const correct = pairs.find(p => p.left === leftVal && p.right === rightVal);
-    matchSelected.classList.remove('selected');
-    if (correct) {
-      matchSelected.classList.add('matched-correct');
-      item.classList.add('matched-correct');
-      matchCorrect++;
-      if (matchCorrect === matchTotal) {
-        score += matchTotal; correct_count += matchTotal;
-        document.getElementById('quiz-score').textContent = `Score: ${score}`;
-        showFeedback(true, `All ${matchTotal} pairs matched correctly! Great work!`);
-        document.getElementById('quiz-next-btn').style.display = 'inline-block';
-      }
-    } else {
-      matchSelected.classList.add('matched-wrong');
-      item.classList.add('matched-wrong');
-      wrong_count++;
-      setTimeout(() => {
-        matchSelected && matchSelected.classList.remove('matched-wrong');
-        item.classList.remove('matched-wrong');
-        matchSelected = null;
-      }, 900);
-    }
-    matchSelected = null;
-  }
-}
-
-function showFeedback(isCorrect, explanation) {
-  const fb = document.getElementById('quiz-feedback');
-  fb.innerHTML = `<div class="feedback-box ${isCorrect ? 'correct' : 'wrong'}">
-    <strong>${isCorrect ? '✓ Correct!' : '✗ Incorrect'}</strong>
-    ${explanation}
-  </div>`;
-}
-
-function nextQuestion() {
-  qIndex++;
-  if (qIndex >= quizActive.length) {
-    showResults();
-  } else {
-    renderQuestion();
-  }
-}
-
-function showResults() {
-  document.getElementById('quiz-active-screen').style.display = 'none';
-  document.getElementById('quiz-results-screen').style.display = 'block';
-  const total = quizActive.length;
-  const pct = Math.round((score / (total + matchTotal - 1)) * 100);
-  const safePct = Math.min(100, Math.max(0, Math.round((correct_count / (correct_count + wrong_count || 1)) * 100)));
-  document.getElementById('res-pct').textContent = safePct + '%';
-  document.getElementById('res-correct').textContent = correct_count;
-  document.getElementById('res-wrong').textContent = wrong_count;
-  document.getElementById('res-total').textContent = quizActive.length;
-  const remarks = [
-    [90, "Outstanding! You clearly know your RPH! 🏆"],
-    [75, "Great job! Just a few topics to review. 📚"],
-    [60, "Good effort! Focus on the dates and constitutions. 💪"],
-    [0, "Keep studying! Go through the Reviewer mode again. 📖"],
-  ];
-  const remark = remarks.find(r => safePct >= r[0]);
-  document.getElementById('res-remark').textContent = remark[1];
-}
-
-function resetQuiz() {
-  correct_count = 0; wrong_count = 0; score = 0; qIndex = 0;
-  document.getElementById('quiz-active-screen').style.display = 'none';
-  document.getElementById('quiz-results-screen').style.display = 'none';
-  document.getElementById('quiz-start-screen').style.display = 'block';
-  document.getElementById('quiz-progress').style.width = '0%';
-}
-
-// ==================== FLASHCARDS ====================
-
-function getFilteredCards() {
-  if (fcFilter === 'all') return allFlashcards;
-  if (fcFilter === 'know') return allFlashcards.filter((_, i) => knownSet.has(i));
-  if (fcFilter === 'review') return allFlashcards.filter((_, i) => reviewSet.has(i));
-  return allFlashcards.filter(c => c.category === fcFilter);
-}
-
-function updateFcStats() {
-  document.getElementById('fc-stat-total').textContent = allFlashcards.length;
-  document.getElementById('fc-stat-know').textContent = knownSet.size;
-  document.getElementById('fc-stat-review').textContent = reviewSet.size;
-}
-
-function renderFC() {
-  const cards = getFilteredCards();
-  const empty = document.getElementById('fc-empty');
-  const scene = document.getElementById('fc-scene');
-
-  if (!cards.length) {
-    scene.style.display = 'none';
-    empty.style.display = 'block';
-    document.getElementById('fc-pos').textContent = '0';
-    document.getElementById('fc-total').textContent = '0';
-    document.getElementById('fc-status').innerHTML = '';
-    return;
-  }
-
-  scene.style.display = 'block';
-  empty.style.display = 'none';
-
-  // Clamp index
-  if (fcIndex >= cards.length) fcIndex = cards.length - 1;
-  if (fcIndex < 0) fcIndex = 0;
-
-  const card = cards[fcIndex];
-  const globalIndex = allFlashcards.indexOf(card);
-
-  document.getElementById('fc-front-text').textContent = card.front;
-  document.getElementById('fc-back-text').textContent = card.back;
-
-  const catLabels = { term: 'KEY TERM', person: 'PERSON', date: 'DATE' };
-  const catLabel = catLabels[card.category] || 'CARD';
-  document.getElementById('fc-cat-tag').textContent = catLabel;
-  document.getElementById('fc-cat-tag-back').textContent = catLabel;
-
-  document.getElementById('fc-pos').textContent = fcIndex + 1;
-  document.getElementById('fc-total').textContent = cards.length;
-
-  // Unflip card
-  document.getElementById('fc-card').classList.remove('flipped');
-
-  // Status
-  const statusEl = document.getElementById('fc-status');
-  if (knownSet.has(globalIndex)) {
-    statusEl.innerHTML = '<span class="status-know">✓ Marked as Know It</span>';
-  } else if (reviewSet.has(globalIndex)) {
-    statusEl.innerHTML = '<span class="status-review">↺ Marked for Review Again</span>';
-  } else {
-    statusEl.innerHTML = '';
-  }
-
-  // Nav buttons
-  document.getElementById('fc-prev-btn').disabled = fcIndex === 0;
-  document.getElementById('fc-next-btn').disabled = fcIndex === cards.length - 1;
-
-  updateFcStats();
-}
-
-function flipCard() {
-  document.getElementById('fc-card').classList.toggle('flipped');
-}
-
-function fcNavigate(dir) {
-  fcIndex += dir;
-  renderFC();
-}
-
-function markCard(type) {
-  const cards = getFilteredCards();
-  if (!cards.length) return;
-  const card = cards[fcIndex];
-  const globalIndex = allFlashcards.indexOf(card);
-
-  if (type === 'know') {
-    knownSet.add(globalIndex);
-    reviewSet.delete(globalIndex);
-  } else {
-    reviewSet.add(globalIndex);
-    knownSet.delete(globalIndex);
-  }
-
-  // Auto advance
-  if (fcIndex < cards.length - 1) {
-    fcIndex++;
-    renderFC();
-  } else {
-    renderFC(); // Re-render to update status
-  }
-}
-
-function setFcFilter(filter, btn) {
-  fcFilter = filter;
-  document.querySelectorAll('#fc-filter-btns .badge').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  fcIndex = 0;
-  renderFC();
-}
-
-// ==================== MODE SWITCHING ====================
-
-function switchMode(mode) {
-  document.querySelectorAll('.mode').forEach(m => m.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('mode-' + mode).classList.add('active');
-  event.target.classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ==================== INIT ====================
-
-renderReviewer();
-renderFC();
+// ─────────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────────
+initItems('all');
+nextQ();
+buildQA();
 </script>
 </body>
 </html>
